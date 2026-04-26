@@ -1,3 +1,7 @@
 import { Routes } from '@angular/router';
+import {Registro} from './registro/registro';
 
-export const routes: Routes = [];
+// AGREGAR SUS RUTAS Y EL COMPONENTE
+export const routes: Routes = [
+  { path: 'registro', component: Registro },
+];

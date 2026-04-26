@@ -5,17 +5,16 @@ body, html {
 }
 
 .bg-image {
-  /* Reemplaza la URL por la ruta de tu imagen de fondo */
   background-size: cover;
   background-position: center;
-  height: 100vh;
+  height: calc(100vh - 75px);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .registro-card {
-  background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco con ligera transparencia opcional */
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   padding: 40px;
   max-width: 550px;
@@ -23,7 +22,6 @@ body, html {
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Color personalizado para el botón basado en la imagen */
 .btn-custom {
   background-color: #217ba0;
   border-color: #217ba0;
