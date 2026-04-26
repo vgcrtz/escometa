@@ -1,0 +1,63 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.bg-image {
+  /* Reemplaza la URL por la ruta de tu imagen de fondo */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.registro-card {
+  background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco con ligera transparencia opcional */
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 550px;
+  width: 90%;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Color personalizado para el botón basado en la imagen */
+.btn-custom {
+  background-color: #217ba0;
+  border-color: #217ba0;
+  color: white;
+  padding: 8px 30px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}
+
+.btn-custom:hover {
+  background-color: #1a6280;
+  border-color: #1a6280;
+  color: white;
+}
+
+.form-label {
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.2;
+}
+
+.title-divider {
+  border-top: 2px solid #555;
+  margin-top: 5px;
+  margin-bottom: 25px;
+  opacity: 1;
+}
+
+.footer-text {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.footer-text a {
+  color: #555;
+  text-decoration: underline;
+}

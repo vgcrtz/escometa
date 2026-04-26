@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro</title>
+</head>
+<body>
+
+<!--Sé que aparece un error, pero es pq la imagen está en PUBLIC-->
+
+<div class="bg-image" style="background-image: url('Background_IMG.jpg');">
+  <div class="registro-card">
+    <div class="text-center">
+      <h5 class="mb-1 fw-bold text-secondary" style="padding-bottom: 5%">REGISTRO</h5>
+      <hr class="title-divider">
+    </div>
+
+    <form>
+      <div class="row mb-3 align-items-center">
+        <div class="col-4">
+          <label for="correo" class="form-label mb-0">Correo<br>electrónico:</label>
+        </div>
+        <div class="col-8">
+          <input type="email" class="form-control" id="correo">
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <div class="col-4">
+          <label for="password" class="form-label mb-0">Contraseña:</label>
+        </div>
+        <div class="col-8">
+          <input type="password" class="form-control" id="password">
+        </div>
+      </div>
+
+      <div class="row mb-4 align-items-center">
+        <div class="col-4">
+          <label for="confirm_password" class="form-label mb-0">Confirmar<br>contraseña:</label>
+        </div>
+        <div class="col-8">
+          <input type="password" class="form-control" id="confirm_password">
+        </div>
+      </div>
+
+      <div class="text-center mb-3 mt-4">
+        <button type="submit" class="btn btn-custom">Crear cuenta</button>
+      </div>
+    </form>
+
+    <div class="text-center footer-text mt-3">
+      ¿Ya tienes cuenta? Inicia sesión <a href="#">aquí</a>.
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
