@@ -10,5 +10,5 @@ import { BarraSuperiorEscom } from './barra-superior-escom/barra-superior-escom'
 })
 
 export class App {
-  protected readonly title = signal('ESCOMETA');
+
 }
