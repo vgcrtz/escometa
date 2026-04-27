@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
-import { Busqueda } from './pages/busqueda/busqueda';
+import { Component, signal } from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import { BarraSuperiorEscom } from './barra-superior-escom/barra-superior-escom';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [Busqueda],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [BarraSuperiorEscom, RouterOutlet],
+  templateUrl: 'app.html',
+  styleUrl: 'app.css'
 })
+
 export class App {
 
 }
