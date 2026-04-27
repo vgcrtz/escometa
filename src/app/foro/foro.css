@@ -1,0 +1,117 @@
+.foro-page-container {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.foro-title {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.foro-title-divider {
+    border-top: 1px solid #ced4da;
+    opacity: 1;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.chat-main-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+}
+
+.chat-panel-card {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 15px;
+    border: 1px solid #ced4da;
+    overflow: hidden;
+}
+
+.chat-body-scroller {
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.user-icon-incoming,
+.user-icon-outgoing {
+    font-size: 1.8rem;
+    line-height: 1;
+    color: #333;
+}
+
+.bubble {
+    font-size: 0.9rem;
+    line-height: 1.3;
+    max-width: 70%;
+    position: relative;
+}
+
+.bubble-incoming {
+    background-color: #e9ecef;
+    border-radius: 15px 15px 15px 5px;
+}
+
+.bubble-incoming::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #e9ecef;
+}
+
+.bubble-outgoing {
+    background-color: #217ba0;
+    border-radius: 15px 15px 5px 15px;
+}
+
+.bubble-outgoing::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -8px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #217ba0;
+}
+
+.chat-input-bar {
+    padding: 0;
+}
+
+.input-text-area {
+    background-color: #e9ecef;
+    border: none;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.input-text-area:focus {
+    box-shadow: none;
+    background-color: #f1f3f5;
+}
+
+.btn-add {
+    font-size: 2.2rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.btn-add:focus,
+.btn-add:hover {
+    box-shadow: none;
+    color: #5a6268;
+}

@@ -1,0 +1,48 @@
+<div class="h-100 d-flex flex-column bg-white">
+  <div class="pt-3 ps-3">
+    <h2 class="m-0 text-dark fs-2 fw-bold">ASISTENCIA</h2>
+    <hr class="mt-2 mb-0 border-secondary">
+  </div>
+
+  <div class="flex-grow-1 d-flex justify-content-center align-items-start mt-5">
+    <div class="calendar-container shadow w-75">
+
+      <div class="header-azul d-flex justify-content-between align-items-center">
+        <div class="btn-nav-left d-flex align-items-center px-4 py-2" (click)="mesAnterior()">
+          <i class="bi bi-chevron-left fs-2 text-dark flecha-gruesa"></i>
+        </div>
+        <span class="fs-4 text-dark fw-bold">{{ nombreMes }} {{ anioSeleccionado }}</span>
+        <div class="btn-nav-right d-flex align-items-center px-4 py-2" (click)="mesSiguiente()">
+          <i class="bi bi-chevron-right fs-2 text-dark flecha-gruesa"></i>
+        </div>
+      </div>
+
+      <table class="table table-bordered text-center m-0 calendar-table">
+        <thead>
+          <tr>
+            <th class="py-3 text-dark fw-bold">DOMINGO</th>
+            <th class="py-3 text-dark fw-bold">LUNES</th>
+            <th class="py-3 text-dark fw-bold">MARTES</th>
+            <th class="py-3 text-dark fw-bold">MIÉRCOLES</th>
+            <th class="py-3 text-dark fw-bold">JUEVES</th>
+            <th class="py-3 text-dark fw-bold">VIERNES</th>
+            <th class="py-3 text-dark fw-bold">SÁBADO</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (semana of calendario; track $index) {
+            <tr>
+              @for (dia of semana; track $index) {
+                <td class="py-3 text-dark fw-bold"
+                    [class.dia-actual]="dia === diaActual && mesActual === mesSeleccionado && anioActual === anioSeleccionado">
+                  {{ dia !== 0 ? dia : '' }}
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>

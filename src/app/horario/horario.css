@@ -1,0 +1,29 @@
+.table-container {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.header-azul {
+    background-color: #217ba0 !important;
+    color: white !important;
+    font-weight: 500;
+    border-bottom: none;
+}
+
+.table-bordered td,
+.table-bordered th {
+    border-color: #dee2e6;
+    vertical-align: middle;
+}
+
+.ancho-hora {
+    width: 20%;
+}
+
+.ancho-salon {
+    width: 20%;
+}
+
+.ancho-clase {
+    width: 60%;
+}

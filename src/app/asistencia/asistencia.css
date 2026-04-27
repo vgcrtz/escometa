@@ -1,0 +1,47 @@
+.calendar-container {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.header-azul {
+    background-color: #217ba0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn-nav-left {
+    border-right: 2px solid white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-nav-right {
+    border-left: 2px solid white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-nav-left:hover,
+.btn-nav-right:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.flecha-gruesa {
+    -webkit-text-stroke: 2px #212529;
+}
+
+.calendar-table th {
+    font-size: 0.9rem;
+}
+
+.calendar-table td,
+.calendar-table th {
+    border-color: #dee2e6;
+    vertical-align: middle;
+    width: 14.28%;
+    height: 60px;
+}
+
+.dia-actual {
+    background-color: #217ba0 !important;
+    color: white !important;
+}
