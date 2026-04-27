@@ -1,0 +1,190 @@
+:root {
+    --guinda-ipn: #6A1B32;
+    --dorado-sep: #BC955C;
+    --gris-suave: #f4f4f4;
+    --texto: #333;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    line-height: 1.6;
+    color: var(--texto);
+    background-color: #ffffff;
+}
+
+/* 1. ENCABEZADO */
+header {
+    background-color: var(--guinda-ipn);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header h1 { margin: 0; font-size: 1.8rem; }
+header p { margin: 5px 0 0; opacity: 0.9; }
+
+section {
+    padding: 4rem 10%;
+    border-bottom: 1px solid #eee;
+}
+
+h2 {
+    color: var(--guinda-ipn);
+    border-left: 5px solid var(--dorado-sep);
+    padding-left: 15px;
+    margin-bottom: 2rem;
+}
+
+/* 2. SECCIÓN SERVICIOS (Carrusel/Grid dinámico) */
+.servicios-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.servicio-card {
+    background: var(--gris-suave);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.servicio-card:hover {
+    transform: translateY(-5px);
+    background: #e9e9e9;
+}
+
+.servicio-card img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+}
+
+/* 3. OBJETIVOS */
+.objetivos-parallax {
+    position: relative;
+    background-image: url('informacion_objetivos.jpg'); 
+            
+    /* Efecto de fondo */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+            
+    min-height: 55vh;
+    padding: 40px 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    overflow: hidden;
+}
+
+/* Capa de oscurecimiento extra (Overlay) */
+.objetivos-parallax::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Oscurece la imagen un 50% */
+    z-index: 1;
+}
+
+.objetivos-contenido-relativo {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8); /* Sombra para resaltar el texto claro */
+}
+
+.objetivos-contenido-relativo h2 {
+    color: #BC955C; /* Dorado para resaltar el título sobre el fondo oscuro */
+    border-left: none;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.objetivos-list {
+    list-style: none;
+    padding: 0;
+    font-size: 1.2rem;
+    line-height: 2;
+}
+
+.objetivos-list li::before {
+    content: "•";
+    color: #BC955C;
+    font-weight: bold;
+    display: inline-block; 
+    width: 1em;
+    margin-left: -1em;
+}
+
+/* 4. PRECAUCIONES LEGALES */
+.legal-box {
+    background-color: #fff9f9;
+    border: 1px solid #ffcece;
+    padding: 25px;
+    font-size: 0.95rem;
+}
+
+/* 5. LOGOS INSTITUCIONALES */
+.logos-section {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    background: #fff;
+}
+
+.logo-placeholder {
+    width: 1201px;
+    height: 200px;
+    background-image: url('informacion_logos.jpeg'); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    border: 2px dashed #ccc;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.8rem;
+    background: var(--gris-suave);
+}
+
+@media (max-width: 768px) {
+    section { padding: 2rem 5%; }
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    text-align: center;
+    padding: 20px;
+    background: #6A1B32;
+    color: white;
+}
+
+.columna-equipo h4 {
+    border-bottom: 1px solid #BC955C;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.nombres-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 0.85rem;
+    gap: 5px;
+}
