@@ -1,0 +1,70 @@
+<div class="navbar">
+  <div class="logo">
+    <img src="/src/assets/logo-escom.png" alt="ESCOM">
+  </div>
+
+  <div class="menu">
+    <a>MENÚ</a>
+    <a>FORO</a>
+    <a>MENSAJES</a>
+    <a>HORARIO</a>
+    <a>BÚSQUEDA</a>
+    <a>ASISTENCIA</a>
+  </div>
+
+  <div class="help">?</div>
+</div>
+
+<div class="titulo">
+  <h2>BÚSQUEDA</h2>
+</div>
+
+<div class="contenedor">
+
+  <div class="barra-busqueda">
+    <input
+      type="text"
+      placeholder="Consulta información sobre la institución"
+    />
+
+    <span class="icono">✕</span>
+    <span class="icono">🔍</span>
+  </div>
+
+  <div class="filtros">
+    <button
+      [class.activo]="filtroSeleccionado === 'todo'"
+      (click)="seleccionarFiltro('todo')">
+      Todo
+    </button>
+
+    <button
+      [class.activo]="filtroSeleccionado === 'academica'"
+      (click)="seleccionarFiltro('academica')">
+      Información académica
+    </button>
+
+    <button
+      [class.activo]="filtroSeleccionado === 'tramites'"
+      (click)="seleccionarFiltro('tramites')">
+      Trámites
+    </button>
+
+    <button
+      [class.activo]="filtroSeleccionado === 'anuncios'"
+      (click)="seleccionarFiltro('anuncios')">
+      Anuncios
+    </button>
+
+    <button
+      [class.activo]="filtroSeleccionado === 'eventos'"
+      (click)="seleccionarFiltro('eventos')">
+      Eventos
+    </button>
+  </div>
+
+  <div class="resultados">
+
+  </div>
+
+</div>
