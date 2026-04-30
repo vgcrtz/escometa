@@ -1,4 +1,3 @@
-<!--Sé que aparece un error, pero es pq la imagen está en PUBLIC-->
 <div class="bg-image" style="background-image: url('Background_IMG.jpg');">
   <div class="registro-card">
     <div class="text-center">
@@ -6,41 +5,101 @@
       <hr class="title-divider">
     </div>
 
-    <form>
+    <form [formGroup]="registerForm" (ngSubmit)="registrarUsuario()">
+
+      <div class="row mb-3 align-items-center">
+        <div class="col-4">
+          <label for="nombre" class="form-label mb-0">Nombre:</label>
+        </div>
+        <div class="col-8">
+          <input type="text" class="form-control" id="nombre" formControlName="nombre"
+                 [class.is-invalid]="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched">
+          @if (registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched) {
+            <div class="invalid-feedback">Mínimo 10 caracteres.</div>
+          }
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <div class="col-4">
+          <label for="nombre_usuario" class="form-label mb-0">Nombre de<br>usuario:</label>
+        </div>
+        <div class="col-8">
+          <input type="text" class="form-control" id="nombre_usuario" formControlName="nombre_usuario"
+                 [class.is-invalid]="registerForm.get('nombre_usuario')?.invalid && registerForm.get('nombre_usuario')?.touched">
+          @if (registerForm.get('nombre_usuario')?.invalid && registerForm.get('nombre_usuario')?.touched) {
+            <div class="invalid-feedback">Mínimo 5 caracteres.</div>
+          }
+        </div>
+      </div>
+
       <div class="row mb-3 align-items-center">
         <div class="col-4">
           <label for="correo" class="form-label mb-0">Correo<br>electrónico:</label>
         </div>
         <div class="col-8">
-          <input type="email" class="form-control" id="correo">
+          <input type="email" class="form-control" id="correo" formControlName="correo"
+                 [class.is-invalid]="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched">
+          @if (registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched) {
+            <div class="invalid-feedback">Ingresa un correo válido.</div>
+          }
         </div>
       </div>
 
       <div class="row mb-3 align-items-center">
         <div class="col-4">
-          <label for="password" class="form-label mb-0">Contraseña:</label>
+          <label for="tipo_usuario" class="form-label mb-0">Tipo de<br>usuario:</label>
         </div>
         <div class="col-8">
-          <input type="password" class="form-control" id="password">
+          <select class="form-select" id="tipo_usuario" formControlName="tipo_usuario"
+                  [class.is-invalid]="registerForm.get('tipo_usuario')?.invalid && registerForm.get('tipo_usuario')?.touched">
+            <option value="" disabled selected>Selecciona una opción</option>
+            <option value="ALUMNO">Estudiante</option>
+            <option value="DOCENTE">Docente</option>
+            <option value="ADMINISTRATIVO">Administrativo</option>
+          </select>
+          @if (registerForm.get('tipo_usuario')?.invalid && registerForm.get('tipo_usuario')?.touched) {
+            <div class="invalid-feedback">Selecciona un tipo de usuario.</div>
+          }
+        </div>
+      </div>
+
+      <div class="row mb-3 align-items-center">
+        <div class="col-4">
+          <label for="contrasena" class="form-label mb-0">Contraseña:</label>
+        </div>
+        <div class="col-8">
+          <input type="password" class="form-control" id="contrasena" formControlName="contrasena"
+                 [class.is-invalid]="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">
+          @if (registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched) {
+            <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+          }
         </div>
       </div>
 
       <div class="row mb-4 align-items-center">
         <div class="col-4">
-          <label for="confirm_password" class="form-label mb-0">Confirmar<br>contraseña:</label>
+          <label for="confirmar_contrasena" class="form-label mb-0">Confirmar<br>contraseña:</label>
         </div>
         <div class="col-8">
-          <input type="password" class="form-control" id="confirm_password">
+          <input type="password" class="form-control" id="confirmar_contrasena" #confirmPass (input)="0"
+                 [class.is-invalid]="confirmPass.value !== registerForm.get('contrasena')?.value && confirmPass.value.length > 0">
+          @if (confirmPass.value !== registerForm.get('contrasena')?.value && confirmPass.value.length > 0) {
+            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+          }
         </div>
       </div>
 
       <div class="text-center mb-3 mt-4">
-        <button type="submit" class="btn btn-custom">Crear cuenta</button>
+        <button type="submit" class="btn btn-custom"
+                [disabled]="registerForm.invalid || confirmPass.value !== registerForm.get('contrasena')?.value || confirmPass.value === ''">
+          Crear cuenta
+        </button>
       </div>
     </form>
 
     <div class="text-center footer-text mt-3">
-      ¿Ya tienes cuenta? Inicia sesión <a href="#">aquí</a>.
+      ¿Ya tienes cuenta? Inicia sesión <a routerLink="/inicio">aquí</a>.
     </div>
 
   </div>
