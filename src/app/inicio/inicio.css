@@ -1,0 +1,123 @@
+.inicio-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 50px;
+  font-family: var(--main-font, 'Roboto', sans-serif);
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  border-left: 1px solid #eaeaea;
+  border-right: 1px solid #eaeaea;
+  padding: 0 40px 40px 40px;
+  min-height: 80vh;
+}
+
+.greeting-section {
+  text-align: center;
+  margin-bottom: 40px;
+
+  .greeting-block {
+    text-align: left;
+    margin-bottom: 20px;
+    padding-left: 10px;
+  }
+
+  .bienvenida {
+    font-size: 0.9rem;
+    color: #000;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+
+  .rol {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+  }
+}
+
+.cards-grid {
+  padding-top: 13%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.action-card {
+  background: #ffffff;
+  border: 1px solid #dfdfdf;
+  border-radius: 12px;
+  /* Aumentamos un poco el padding para que el ícono grande respire */
+  padding: 50px 50px;
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Más separación entre el ícono gigante y el texto */
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+  }
+
+  .icon-circle {
+    /* Tamaño del fondo circular aumentado dramáticamente (antes 65px) */
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .dummy-icon {
+    /* Tamaño de la imagen del ícono aumentada (antes 35px) */
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+  }
+
+  .card-text {
+    /* Letra ligeramente más grande para compensar el tamaño del ícono */
+    font-size: 1.3rem;
+    color: #000;
+    font-weight: 400;
+  }
+}
+
+.bg-dark-blue {
+  background-color: #488cb3;
+}
+
+.bg-medium-blue {
+  background-color: #7ab3ce;
+}
+
+.bg-light-blue {
+  background-color: #aed4e6;
+}
+
+.bg-very-light-blue {
+  background-color: #d8edf5;
+}
+.bg-asistencia-blue {
+  background-color: #176382 !important; /* Un azul marino profundo corporativo de la ESCOM */
+}

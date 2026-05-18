@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 .header-azul {
   background-color: #217ba0;
   height: 75px;
   width: 100%;
   position: relative;
+  font-family: 'Roboto', sans-serif; /* Se aplica la fuente Roboto a toda la barra */
 }
 
 .logo-wrapper {
@@ -26,4 +29,24 @@
 
 .nav-link:hover {
   color: #cce4f0 !important;
+}
+
+/* Estilos para el nuevo botón de FAQ */
+.faq-btn {
+  text-decoration: none;
+  background-color: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.faq-btn:hover {
+  background-color: #ffffff;
+  color: #217ba0 !important;
 }

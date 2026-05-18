@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.notifications-page-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Flecha de regreso */
+.btn-back {
+  background: none;
+  border: none;
+  color: #217ba0;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+  padding: 0;
+}
+
+.btn-back:hover {
+  transform: translateX(-5px);
+  color: #1a6282;
+}
+
+/* Panel del Carrusel */
+.carousel-wrapper {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 35px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.panel-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.count-badge {
+  background-color: #e3f2fd;
+  color: #217ba0;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Estructura Interna del Carrusel */
+.carousel-container-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  margin-bottom: 25px;
+}
+
+/* Flechas de Navegación */
+.carousel-arrow {
+  background-color: #ffffff;
+  border: 1px solid #eaeded;
+  color: #217ba0;
+  font-size: 2rem;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  line-height: 1;
+  user-select: none;
+  z-index: 10;
+}
+
+.carousel-arrow:hover {
+  background-color: #217ba0;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Tarjeta de la Notificación */
+/* Reemplaza la clase de tu tarjeta con esto para mantener transiciones fluidas */
+.notification-carousel-card {
+  flex-grow: 1;
+  background-color: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  border-radius: 16px;
+  padding: 30px;
+  cursor: pointer;
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+
+  /* Transición suave al cambiar los datos del texto */
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Variación si no está leída (Estilo Alumno) */
+.notification-carousel-card.unread {
+  background-color: #f4fafd;
+  border: 1px solid #e1f5fe;
+  box-shadow: 0 4px 15px rgba(33, 123, 160, 0.05);
+}
+
+/* Badges y Tags Internos */
+.unread-badge {
+  position: absolute;
+  top: -10px;
+  left: 25px;
+  background-color: #d32f2f;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(211, 47, 47, 0.3);
+}
+
+.notif-type-tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #7f8c8d;
+  letter-spacing: 0.5px;
+}
+
+.unread .notif-type-tag {
+  color: #217ba0;
+}
+
+.notif-time {
+  font-size: 0.8rem;
+  color: #95a5a6;
+}
+
+.notif-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 12px 0 6px 0;
+}
+
+.notif-desc {
+  margin: 0 0 15px 0;
+  font-size: 0.95rem;
+  color: #555555;
+  line-height: 1.5;
+}
+
+.click-tip {
+  font-size: 0.8rem;
+  color: #217ba0;
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* Indicadores de Puntos (Dots) */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dot-btn {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #bdc3c7;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.dot-btn.active {
+  width: 28px; /* El punto se alarga elegantemente al estar activo */
+  border-radius: 5px;
+  background-color: #217ba0;
+}
+
+/* Pequeño indicador si esa tarjeta de punto oculto no está leída aún */
+.dot-btn.dot-unread:not(.active) {
+  background-color: #a9d4e7;
+  border: 1px solid #217ba0;
+}
+
+/* Animación de entrada de tarjeta */
+@keyframes cardScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsivo rápido */
+@media (max-width: 576px) {
+  .carousel-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 1.5rem;
+  }
+  .notification-carousel-card {
+    padding: 20px;
+  }
+}

@@ -1,0 +1,27 @@
+<div class="inicio-container">
+  <div class="content-wrapper">
+
+    <header class="greeting-section">
+      <div class="greeting-block">
+        <p class="bienvenida">BIENVENIDO,</p>
+        <h1 class="rol">{{ userRolTexto() }}</h1>
+      </div>
+      <p class="subtitle">¿Qué harás hoy?</p>
+    </header>
+
+    <div class="cards-grid">
+      @for (opcion of opcionesFiltradas(); track opcion.titulo) {
+        <button type="button" class="action-card" (click)="navegar(opcion.link)">
+          <div class="icon-circle" [class]="opcion.colorClase">
+            <img [src]="opcion.icono" [alt]="opcion.titulo" class="dummy-icon">
+          </div>
+          <span class="card-text">{{ opcion.titulo }}</span>
+        </button>
+      } @empty {
+        <div class="text-center p-5 w-100">
+          <p class="text-muted">No cuentas con paneles de acción disponibles para este perfil.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

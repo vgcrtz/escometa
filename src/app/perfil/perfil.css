@@ -1,0 +1,173 @@
+.profile-page-container {
+  width: 100%;
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Flecha de regreso */
+.back-navigation {
+  margin-bottom: 20px;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #217ba0;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+  padding: 0;
+}
+
+.btn-back:hover {
+  transform: translateX(-5px);
+  color: #1a6282;
+}
+
+/* Tarjeta principal con el sombreado del alumno */
+.profile-card {
+  background: rgba(245, 246, 250, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+/* --- NUEVA DISTRIBUCIÓN FLEX EN CABECERA --- */
+.profile-header {
+  display: flex;
+  align-items: center; /* Centrado vertical entre la foto y el bloque de texto */
+  gap: 28px;           /* Separación entre la foto y la información */
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+/* Foto con el Aro Preservado (Se elimina el centrado automático 'margin: 0 auto') */
+.avatar-container {
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  border: 4px solid #217ba0;
+  padding: 4px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0; /* Evita que la foto se deforme en pantallas pequeñas */
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Contenedor vertical interno para textos y botón */
+.profile-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start; /* Alínea el botón y textos a la izquierda */
+}
+
+.name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-fullname {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.user-username {
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  font-weight: 400;
+}
+
+.profile-divider {
+  height: 3px;          /* Aumentado de 1px a 3px para darle más grosor */
+  background-color: #e2e8f0; /* Un gris un poco más marcado pero sutil */
+  border-radius: 4px;   /* Suaviza los extremos de la línea para que no se vea tosca */
+  margin: 25px 0;
+}
+
+/* Formato de filas de información */
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+}
+
+.detail-label {
+  color: #7f8c8d;
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.badge-role {
+  background-color: #217ba0;
+  color: #ffffff;
+  padding: 4px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Botón de edición reubicado arriba */
+.btn-edit-profile {
+  background-color: #217ba0;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(33, 123, 160, 0.2);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-edit-profile:hover {
+  background-color: #1a6282;
+  transform: translateY(-1px);
+}
+
+.btn-edit-profile:active {
+  transform: translateY(0);
+}
+
+.loading-spinner-container {
+  padding: 40px 0;
+}

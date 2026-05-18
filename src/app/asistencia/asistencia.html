@@ -1,40 +1,50 @@
-<div class="h-100 d-flex flex-column bg-white">
-  <div class="pt-3 ps-3">
-    <h2 class="m-0 text-dark fs-2 fw-bold">ASISTENCIA</h2>
-    <hr class="mt-2 mb-0 border-secondary">
+@if (toastMessage()) {
+  <div class="toast-container-asistencia">
+    <div class="toast-content-asistencia">
+      <div class="toast-header-asistencia">
+        <strong>Aviso del Sistema</strong>
+        <button type="button" class="close-btn-asistencia" (click)="closeToast()">&times;</button>
+      </div>
+      <p class="toast-body-asistencia">{{ toastMessage() }}</p>
+    </div>
   </div>
+}
 
-  <div class="flex-grow-1 d-flex justify-content-center align-items-start mt-5">
-    <div class="calendar-container shadow w-75">
+<div class="h-100 d-flex flex-column bg-white page-main-asistencia">
+  <div class="flex-grow-1 d-flex flex-column justify-content-start align-items-center mt-5">
+
+    <div class="calendar-container shadow w-75 bg-light">
 
       <div class="header-azul d-flex justify-content-between align-items-center">
         <div class="btn-nav-left d-flex align-items-center px-4 py-2" (click)="mesAnterior()">
-          <i class="bi bi-chevron-left fs-2 text-dark flecha-gruesa"></i>
+          <span class="flecha-nav">‹</span>
         </div>
-        <span class="fs-4 text-dark fw-bold">{{ nombreMes }} {{ anioSeleccionado }}</span>
+        <span class="fs-4 text-white fw-bold month-indicator">{{ nombreMes }} {{ anioSeleccionado }}</span>
         <div class="btn-nav-right d-flex align-items-center px-4 py-2" (click)="mesSiguiente()">
-          <i class="bi bi-chevron-right fs-2 text-dark flecha-gruesa"></i>
+          <span class="flecha-nav">›</span>
         </div>
       </div>
 
       <table class="table table-bordered text-center m-0 calendar-table">
         <thead>
-          <tr>
-            <th class="py-3 text-dark fw-bold">DOMINGO</th>
-            <th class="py-3 text-dark fw-bold">LUNES</th>
-            <th class="py-3 text-dark fw-bold">MARTES</th>
-            <th class="py-3 text-dark fw-bold">MIÉRCOLES</th>
-            <th class="py-3 text-dark fw-bold">JUEVES</th>
-            <th class="py-3 text-dark fw-bold">VIERNES</th>
-            <th class="py-3 text-dark fw-bold">SÁBADO</th>
-          </tr>
+        <tr>
+          <th class="py-3 text-secondary fw-bold">DOMINGO</th>
+          <th class="py-3 text-secondary fw-bold">LUNES</th>
+          <th class="py-3 text-secondary fw-bold">MARTES</th>
+          <th class="py-3 text-secondary fw-bold">MIÉRCOLES</th>
+          <th class="py-3 text-secondary fw-bold">JUEVES</th>
+          <th class="py-3 text-secondary fw-bold">VIERNES</th>
+          <th class="py-3 text-secondary fw-bold">SÁBADO</th>
+        </tr>
         </thead>
         <tbody>
           @for (semana of calendario; track $index) {
             <tr>
               @for (dia of semana; track $index) {
-                <td class="py-3 text-dark fw-bold"
-                    [class.dia-actual]="dia === diaActual && mesActual === mesSeleccionado && anioActual === anioSeleccionado">
+                <td class="py-3 fw-bold cell-day"
+                    [class.dia-actual]="esDiaActualReal(dia)"
+                    [class.asistencia-ok]="tieneAsistencia(dia)"
+                    [class.empty-cell]="dia === 0">
                   {{ dia !== 0 ? dia : '' }}
                 </td>
               }
@@ -42,7 +52,19 @@
           }
         </tbody>
       </table>
-
     </div>
+
+    <div class="action-check-container mt-4 text-center w-75">
+      @if (yaChecoHoy()) {
+        <div class="alert-checked-success d-flex align-items-center justify-content-center">
+          <span>Tu asistencia del día de hoy ya se encuentra registrada correctamente.</span>
+        </div>
+      } @else {
+        <button type="button" class="btn-marcar-asistencia" (click)="marcarAsistenciaDia()">
+          Marcar Asistencia de Hoy
+        </button>
+      }
+    </div>
+
   </div>
 </div>

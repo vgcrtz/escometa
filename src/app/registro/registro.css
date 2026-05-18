@@ -1,16 +1,21 @@
 body, html {
   height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: var(--main-font, Arial, sans-serif); /* Respetando la regla de Roboto si se definió global */
 }
 
 .bg-image {
   background-size: cover;
   background-position: center;
-  height: calc(100vh - 75px);
+
+  /* Implementación del layout estándar adaptable para tu header */
+  width: 100%;
+  min-height: 100%; /* Ahora usa min-height para dejar crecer el formulario */
+
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 40px 0; /* Padding añadido para que la tarjeta no choque arriba/abajo si crece mucho */
 }
 
 .registro-card {
@@ -29,12 +34,18 @@ body, html {
   padding: 8px 30px;
   border-radius: 8px;
   font-size: 1.1rem;
+  transition: all 0.3s;
 }
 
 .btn-custom:hover {
   background-color: #1a6280;
   border-color: #1a6280;
   color: white;
+}
+
+.btn-custom:disabled {
+  background-color: #9cbccc;
+  border-color: #9cbccc;
 }
 
 .form-label {

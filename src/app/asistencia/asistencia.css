@@ -1,47 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.page-main-asistencia {
+  font-family: 'Roboto', sans-serif;
+}
+
+.title-asistencia {
+  letter-spacing: 0.5px;
+}
+
+.border-secondary-thick {
+  height: 3px;
+  background-color: #e2e8f0;
+  border: none;
+  opacity: 1;
+}
+
 .calendar-container {
-    border-radius: 15px;
-    overflow: hidden;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .header-azul {
-    background-color: #217ba0;
-    border-bottom: 1px solid #dee2e6;
+  background-color: #217ba0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  height: 55px;
 }
 
-.btn-nav-left {
-    border-right: 2px solid white;
-    cursor: pointer;
-    transition: background-color 0.2s;
+.month-indicator {
+  letter-spacing: 0.5px;
 }
 
-.btn-nav-right {
-    border-left: 2px solid white;
-    cursor: pointer;
-    transition: background-color 0.2s;
+.flecha-nav {
+  font-size: 2rem;
+  color: #ffffff;
+  user-select: none;
 }
 
-.btn-nav-left:hover,
-.btn-nav-right:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+.btn-nav-left, .btn-nav-right {
+  cursor: pointer;
+  height: 100%;
+  transition: background-color 0.2s;
 }
 
-.flecha-gruesa {
-    -webkit-text-stroke: 2px #212529;
+.btn-nav-left:hover, .btn-nav-right:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
+/* --- DISEÑO DE LAS CELDAS DEL CALENDARIO --- */
 .calendar-table th {
-    font-size: 0.9rem;
+  font-size: 0.85rem;
+  background-color: #f8f9fa;
+  letter-spacing: 0.5px;
 }
 
-.calendar-table td,
-.calendar-table th {
-    border-color: #dee2e6;
-    vertical-align: middle;
-    width: 14.28%;
-    height: 60px;
+.calendar-table td {
+  border-color: #edf2f7;
+  vertical-align: middle;
+  width: 14.28%;
+  height: 65px;
+  color: #2d3748;
+  transition: all 0.2s ease;
 }
 
+.empty-cell {
+  background-color: #fafafa !important;
+  cursor: default;
+}
+
+/* Día de hoy (Aro/Fondo azul original) */
 .dia-actual {
-    background-color: #217ba0 !important;
-    color: white !important;
+  background-color: #e3f2fd !important;
+  color: #217ba0 !important;
+  position: relative;
+  box-shadow: inset 0 0 0 2px #217ba0;
+}
+
+/* NUEVA CLASE: Asistencia marcada con éxito (Verde Esmeralda) */
+.asistencia-ok {
+  background-color: #e8f5e9 !important;
+  color: #1b5e20 !important;
+  box-shadow: inset 0 0 0 1px #a5d6a7;
+}
+
+/* Combinación: Si hoy ya checó, priorizamos el verde con un borde azul sutil */
+.dia-actual.asistencia-ok {
+  background-color: #e8f5e9 !important;
+  color: #1b5e20 !important;
+  box-shadow: inset 0 0 0 3px #217ba0;
+}
+
+/* --- BOTÓN DE MARCAR ASISTENCIA INFERIOR --- */
+.btn-marcar-asistencia {
+  background-color: #217ba0;
+  color: #ffffff;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(33, 123, 160, 0.3);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-marcar-asistencia:hover {
+  background-color: #1a6282;
+  transform: translateY(-1px);
+}
+
+.alert-checked-success {
+  background-color: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  color: #1b5e20;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* --- TOAST DE ADVERTENCIA (REPLICADO DEL LOGIN) --- */
+.toast-container-asistencia {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1100;
+  animation: toastFadeIn 0.3s ease-out;
+}
+
+.toast-content-asistencia {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  border-left: 5px solid #d32f2f;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  width: 350px;
+  padding: 16px;
+}
+
+.toast-header-asistencia {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #d32f2f;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.close-btn-asistencia {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-btn-asistencia:hover {
+  color: #333;
+}
+
+.toast-body-asistencia {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.4;
+}
+
+@keyframes toastFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

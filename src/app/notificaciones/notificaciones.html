@@ -1,0 +1,68 @@
+<div class="notifications-page-container">
+
+  <div class="back-navigation">
+    <button type="button" class="btn-back" (click)="regresar()" title="Regresar">
+      ← Volver
+    </button>
+  </div>
+
+  <div class="carousel-wrapper">
+    <div class="notifications-header d-flex justify-content-between align-items-center mb-4">
+      <h2 class="panel-title m-0">Mis Notificaciones</h2>
+      <span class="count-badge">
+        {{ listadoNotificaciones().length > 0 ? currentIndex() + 1 : 0 }} de {{ listadoNotificaciones().length }}
+      </span>
+    </div>
+
+    @if (listadoNotificaciones().length > 0) {
+      <div class="carousel-container-inner">
+
+        <button type="button" class="carousel-arrow left-arrow" (click)="prevSlide()" title="Anterior">
+          ‹
+        </button>
+
+        <div class="notification-carousel-card"
+             [class.unread]="currentNotification()?.leida === false"
+             (click)="marcarComoLeidaActual()">
+
+          @if (!currentNotification()?.leida) {
+            <span class="unread-badge">Nuevo</span>
+          }
+
+          <div class="card-meta d-flex justify-content-between align-items-center">
+            <span class="notif-type-tag">{{ currentNotification()?.tipo }}</span>
+            <span class="notif-time">{{ currentNotification()?.tiempo }}</span>
+          </div>
+
+          <h3 class="notif-title">{{ currentNotification()?.titulo }}</h3>
+          <p class="notif-desc">{{ currentNotification()?.descripcion }}</p>
+
+          @if (!currentNotification()?.leida) {
+            <span class="click-tip">Haz clic en la tarjeta para marcarla como leída</span>
+          }
+        </div>
+
+        <button type="button" class="carousel-arrow right-arrow" (click)="nextSlide()" title="Siguiente">
+          ›
+        </button>
+      </div>
+
+      <div class="carousel-dots">
+        @for (notif of listadoNotificaciones(); track notif.id; let i = $index) {
+          <button type="button"
+                  class="dot-btn"
+                  [class.active]="i === currentIndex()"
+                  [class.dot-unread]="!notif.leida"
+                  (click)="goToSlide(i)"
+                  [title]="'Ir a notificación ' + (i + 1)">
+          </button>
+        }
+      </div>
+
+    } @else {
+      <div class="empty-notifications text-center p-5">
+        <p class="text-muted">¡Estás al día! No tienes notificaciones pendientes.</p>
+      </div>
+    }
+  </div>
+</div>

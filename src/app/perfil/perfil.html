@@ -1,0 +1,66 @@
+<div class="profile-page-container">
+
+  <div class="back-navigation">
+    <button type="button" class="btn-back" (click)="regresar()" title="Regresar">
+      ← Volver
+    </button>
+  </div>
+
+  <div class="profile-card">
+    @if (isLoading()) {
+      <div class="loading-spinner-container text-center">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Cargando datos de usuario...</p>
+      </div>
+    } @else if (userData()) {
+
+      <div class="profile-header">
+
+        <div class="avatar-container">
+          <img [src]="dummyAvatar" alt="Foto de perfil" class="profile-avatar">
+        </div>
+
+        <div class="profile-identity">
+          <div class="name-block">
+            <h2 class="user-fullname">{{ userData().nombre }}</h2>
+            <span class="user-username">&#64;{{ userData().nombre_usuario }}</span>
+          </div>
+
+          @if (isAdmin()) {
+            <button type="button" class="btn-edit-profile">Editar Perfil</button>
+          }
+        </div>
+
+      </div>
+
+      <div class="profile-divider"></div>
+
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label">Nombre completo</span>
+          <span class="detail-value">{{ userData().nombre }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Nombre de usuario</span>
+          <span class="detail-value text-muted">&#64;{{ userData().nombre_usuario }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Correo electrónico</span>
+          <span class="detail-value">{{ userData().correo }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Tipo de usuario</span>
+          <span class="detail-value badge-role">{{ userData().tipo_usuario }}</span>
+        </div>
+      </div>
+
+    } @else {
+      <div class="error-profile text-center">
+        <p>⚠️ No se pudo cargar la información del perfil.</p>
+      </div>
+    }
+  </div>
+</div>

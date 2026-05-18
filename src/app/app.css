@@ -1,0 +1,11 @@
+/* app.component.scss */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Todo el layout mide el 100% de la ventana */
+}
+
+.content-area {
+  flex: 1; /* La magia: Esto obliga al contenedor a estirarse y usar solo el espacio restante */
+  position: relative;
+}

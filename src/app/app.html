@@ -1,2 +1,9 @@
-<app-barra-superior-escom></app-barra-superior-escom>
-<router-outlet></router-outlet>
+<div class="app-layout">
+  <app-barra-superior-escom></app-barra-superior-escom>
+  <main class="content-area">
+    @if (showSubHeader()){
+      <app-titulo-sesion></app-titulo-sesion>
+    }
+    <router-outlet></router-outlet>
+  </main>
+</div>

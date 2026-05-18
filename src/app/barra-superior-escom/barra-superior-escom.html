@@ -5,15 +5,33 @@
       <img src="logoESCOM.png" alt="Logo ESCOM" class="logo-img">
     </div>
 
-    <nav class="nav-links d-flex ms-4">
-      <a href="/login" class="nav-link text-white fw-bold me-4">INICIO</a>
-      <a href="/registro" class="nav-link text-white fw-bold me-4">REGISTRO</a>
-      <a href="/busqueda" class="nav-link text-white fw-bold me-4">BUSQUEDA</a>
-      <a href="/foro" class="nav-link text-white fw-bold me-4">FORO</a>
-      <a href="/mensajeria" class="nav-link text-white fw-bold me-4">MENSAJERIA</a>
-      <a href="/horario" class="nav-link text-white fw-bold me-4">HORARIO</a>
-      <a href="/asistencia" class="nav-link text-white fw-bold me-4">ASISTENCIA</a>
-    </nav>
+    <nav class="nav-links d-flex ms-4 align-items-center">
 
+      @if (isLoggedIn()) {
+        <a href="/inicio" class="nav-link text-white fw-bold me-4">INICIO</a>
+      }
+
+
+      @if (!isLoggedIn() || userRol() === 'INVITADO') {
+        <a href="/iniciar-sesion" class="nav-link text-white fw-bold me-4">INICIAR SESIÓN</a>
+        <a href="/registro" class="nav-link text-white fw-bold me-4">REGISTRO</a>
+      }
+
+      <a href="/foro" class="nav-link text-white fw-bold me-4">FORO</a>
+
+      @if (isLoggedIn()) {
+        <a href="/mensajeria" class="nav-link text-white fw-bold me-4">MENSAJERIA</a>
+        <a href="/horario" class="nav-link text-white fw-bold me-4">HORARIO</a>
+        <a href="/busqueda" class="nav-link text-white fw-bold me-4">BÚSQUEDA</a>
+
+        @if (userRol() === 'DOCENTE') {
+          <a href="/asistencia" class="nav-link text-white fw-bold me-4">ASISTENCIA</a>
+        }
+      }
+
+      @if (isLoggedIn()) {
+        <a href="/faq" class="faq-btn text-white fw-bold ms-3" title="Preguntas Frecuentes">?</a>
+      }
+    </nav>
   </div>
 </header>

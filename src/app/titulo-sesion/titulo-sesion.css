@@ -1,0 +1,149 @@
+.icon-img-generic {
+  width: 24px;
+  height: 24px;
+  object-fit: contain; /* Evita que el icono de la campana se distorsione */
+  transition: transform 0.2s ease;
+}
+
+.profile-img-generic {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%; /* Si pones una foto cuadrada, la forzará a ser redonda */
+  object-fit: cover;   /* Hace que las fotos de perfil se centren perfectamente sin aplastarse */
+}
+
+/* Mantiene el efecto visual al pasar el cursor sobre los botones */
+.action-icon-btn:hover .icon-img-generic,
+.action-icon-btn:hover .profile-img-generic {
+  filter: brightness(0.9); /* Oscurece ligeramente la imagen al hacer hover */
+}
+
+/* --- BARRA INDEPENDIENTE SUB-HEADER --- */
+.sub-header-bar {
+  height: 60px;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 900; /* Asegura quedar por debajo de alertas globales pero arriba del contenido */
+}
+
+/* Alineación exacta con los márgenes de la barra superior original (10%) */
+.sub-header-container {
+  padding-left: 10% !important;
+  padding-right: 10% !important;
+}
+
+.sub-header-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #217ba0; /* Combinación con el azul corporativo de tu cabecera */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* --- BOTONES DE ICONOS (CAMPANA Y AVATAR) --- */
+.action-icon-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  pointer-events: auto; /* Garantiza la captura de clics */
+}
+
+.action-icon-btn:hover {
+  background-color: #f0f2f5;
+  transform: scale(1.05);
+}
+
+.icon-svg {
+  width: 26px;
+  height: 26px;
+  fill: #65676b; /* Gris sutil institucional */
+  transition: fill 0.2s ease;
+}
+
+.action-icon-btn:hover .icon-svg {
+  fill: #217ba0;
+}
+
+/* --- CONTENEDOR Y MENÚ DESPLEGABLE (DROPDOWN) --- */
+.profile-menu-wrapper {
+  position: relative; /* Base indispensable para posicionar el menú de forma absoluta */
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  width: 200px;
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000; /* Prioridad máxima por encima de formularios y layouts */
+  pointer-events: auto; /* Blindado contra capas invisibles */
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+.dropdown-item-btn {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  color: #333333;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item-btn:hover {
+  background-color: #f5f6fa;
+  color: #217ba0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #eceff1;
+  margin: 6px 0;
+}
+
+.logout-btn {
+  color: #d32f2f;
+}
+
+.logout-btn:hover {
+  background-color: #fdf2f2;
+  color: #c62828;
+}
+
+/* Animación de apertura suave */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajustes Responsivos */
+@media (max-width: 768px) {
+  .sub-header-container {
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+  }
+}
