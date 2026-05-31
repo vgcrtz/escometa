@@ -1,23 +1,25 @@
 <div class="profile-page-container">
-
   <div class="back-navigation">
-    <button type="button" class="btn-back" (click)="regresar()" title="Regresar">
-      ← Volver
-    </button>
+    <button type="button" class="btn-back" (click Sis)="regresar()">← Volver</button>
   </div>
 
   <div class="profile-card">
     @if (isLoading()) {
-      <div class="loading-spinner-container text-center">
+      <div class="text-center p-4">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted">Cargando datos de usuario...</p>
+        <p class="mt-2 text-muted">Sincronizando información...</p>
       </div>
     } @else if (userData()) {
 
       <div class="profile-header">
+        <div class="avatar-container" [class.avatar-loading-blur]="isUploading()">
+          <img [src]="userData().foto_perfil_url || defaultAvatar" alt="Avatar" class="profile-avatar">
 
-        <div class="avatar-container">
-          <img [src]="dummyAvatar" alt="Foto de perfil" class="profile-avatar">
+          @if (isUploading()) {
+            <div class="avatar-spinner-overlay">
+              <div class="spinner-border spinner-border-sm text-light" role="status"></div>
+            </div>
+          }
         </div>
 
         <div class="profile-identity">
@@ -26,11 +28,17 @@
             <span class="user-username">&#64;{{ userData().nombre_usuario }}</span>
           </div>
 
-          @if (isAdmin()) {
-            <button type="button" class="btn-edit-profile">Editar Perfil</button>
-          }
-        </div>
+          <div class="action-buttons-group d-flex gap-2">
+            <button type="button" class="btn-change-photo" [disabled]="isUploading()" (click)="fileInput.click()">
+              Cambiar Foto
+            </button>
+            <input type="file" #fileInput (change)="onFotoSelected($event)" accept="image/*" style="display: none;">
 
+            @if (isAdmin()) {
+              <button type="button" class="btn-edit-profile">Editar Perfil</button>
+            }
+          </div>
+        </div>
       </div>
 
       <div class="profile-divider"></div>
@@ -40,27 +48,20 @@
           <span class="detail-label">Nombre completo</span>
           <span class="detail-value">{{ userData().nombre }}</span>
         </div>
-
         <div class="detail-row">
           <span class="detail-label">Nombre de usuario</span>
           <span class="detail-value text-muted">&#64;{{ userData().nombre_usuario }}</span>
         </div>
-
         <div class="detail-row">
           <span class="detail-label">Correo electrónico</span>
           <span class="detail-value">{{ userData().correo }}</span>
         </div>
-
         <div class="detail-row">
           <span class="detail-label">Tipo de usuario</span>
           <span class="detail-value badge-role">{{ userData().tipo_usuario }}</span>
         </div>
       </div>
 
-    } @else {
-      <div class="error-profile text-center">
-        <p>⚠️ No se pudo cargar la información del perfil.</p>
-      </div>
     }
   </div>
 </div>

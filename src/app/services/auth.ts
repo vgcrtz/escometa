@@ -63,4 +63,18 @@ export class Auth {
   marcar_asistencia(data: any): Observable<any> {
     return this.http.post(`${this.baseURL}/asistencias/registrar`, data, { withCredentials: true });
   }
+
+  subir_foto_perfil(data: any): Observable<any> {
+    const body = { foto_perfil_url: data };
+    return this.http.put(`${this.baseURL}/usuarios/me/foto`, body, { withCredentials: true });
+  }
+
+  /*
+  obtener_sesiones(grupo: any): Observable<any>{
+    return this.http.get(`${this.baseURL}/sesiones/grupo/${grupo}`, { withCredentials: true });
+  }
+
+  obtener_alumnos_grupo(grupo: any): Observable<any>{
+    return this.http.get(`${this.baseURL}/grupos/${grupo}/alumnos`,{withCredentials: true});
+  }*/
 }

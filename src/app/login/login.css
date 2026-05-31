@@ -1,66 +1,284 @@
-body, html {
+.background-container {
+  width: 100%;
   height: 100%;
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
-
-.bg-image {
   background-size: cover;
   background-position: center;
-  height: calc(100vh - 75px);
+  background-repeat: no-repeat;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  font-family: var(--main-font); /* Hereda Roboto del archivo global*/
 }
 
 .login-card {
-  background-color: rgba(255, 255, 255, 0.95);
+  background: rgba(245, 246, 250, 0.92);
+  backdrop-filter: blur(5px);
   border-radius: 20px;
-  padding: 40px;
-  max-width: 550px;
-  width: 90%;
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: row;
+
+  /* --- AJUSTES DE TAMAÑO (Aprox 150%) --- */
+  width: 1200px;  /* Aumentado de 800px a 1200px */
+  max-width: 95%; /* Permite que ocupe casi toda la pantalla en monitores grandes */
+  padding: 60px;  /* Aumentado proporcionalmente para que no se vea vacío */
+  gap: 60px;      /* Más separación entre las dos columnas */
+  /* -------------------------------------- */
+
+  /* El breakpoint se ajusta un poco más arriba porque la tarjeta es más grande */
+  @media (max-width: 992px) {
+    flex-direction: column;
+    width: auto;
+    padding: 30px;
+    gap: 30px;
+  }
 }
 
-.btn-custom {
-  background-color: #217ba0;
-  border-color: #217ba0;
-  color: white;
-  padding: 8px 30px;
-  border-radius: 8px;
-  font-size: 1.1rem;
+.left-column, .right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.btn-custom:hover {
-  background-color: #1a6280;
-  border-color: #1a6280;
-  color: white;
+.section-title {
+  font-weight: 400;
+  font-size: 1.2rem;
+  text-align: center;
+  margin: 0 0 10px 0;
+  color: #333;
 }
 
-.title-divider {
-  border-top: 2px solid #555;
-  margin-top: 5px;
-  margin-bottom: 25px;
-  opacity: 1;
+.divider {
+  height: 2px;
+  background-color: #666;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
-.div-izq{
-  display: inline-block;
-  vertical-align: top;
-  width: 50%;
-  padding-right: 20px;
+/* Formularios */
+.form-group.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+
+  label {
+    font-size: 0.9rem;
+    color: #333;
+    width: 120px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    font-family: var(--main-font);
+
+    &:focus {
+      border-color: #1f75a3;
+    }
+  }
 }
 
-.div-der{
-  display: inline-block;
-  vertical-align: top;
-  width: 50%;
-  padding-left: 20px;
+.form-options {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 20px;
+
+  .forgot-password {
+    font-size: 0.8rem;
+    color: #333;
+    text-decoration: underline;
+    margin-bottom: 15px;
+  }
+
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+
+    input {
+      margin-right: 8px;
+    }
+  }
 }
 
-.text-der{
-  font-size: 12px;
+/* Columna Derecha */
+.guest-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #333;
   text-align: justify;
+  margin-bottom: 30px;
 }
 
+/* Botones y Acciones */
+.action-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+}
 
+.btn-primary {
+  background-color: #1f75a3;
+color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 40px;
+  font-size: 1.1rem;
+  font-family: var(--main-font);
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #15587d;
+  }
+
+  &:disabled {
+    background-color: #9cbccc;
+    cursor: not-allowed;
+  }
+}
+
+.register-text {
+  font-size: 0.8rem;
+  margin-top: 15px;
+  color: #333;
+
+  a {
+    color: #333;
+    text-decoration: underline;
+  }
+}
+
+.toast-container {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  z-index: 9999;
+  /* Animación actualizada: no sale de la pantalla, evitando el salto del scrollbar */
+  animation: popInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+}
+
+.toast-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-left: 5px solid #d32f2f;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  width: 340px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.toast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #d32f2f;
+  font-size: 1rem;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.toast-body {
+  margin: 0;
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.toast-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+/* Botones dentro del Toast */
+.btn-outline-danger {
+  background-color: transparent;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-family: var(--main-font);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* --- CORRECCIONES PARA GARANTIZAR EL CLIC --- */
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.btn-outline-danger:hover {
+  background-color: #d32f2f;
+  color: #ffffff;
+}
+
+.support-link {
+  color: #d32f2f;
+  text-decoration: underline;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.2s;
+
+  /* --- CORRECCIONES PARA GARANTIZAR EL CLIC --- */
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.support-link:hover {
+  color: #9a0007;
+}
+
+@keyframes popInRight {
+  from {
+    transform: translateX(30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+
+  /* --- Agrega estas dos líneas --- */
+  z-index: 50;
+  pointer-events: auto; /* Fuerza que este elemento reaccione al mouse */
+
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 5px;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #d32f2f;
+  transform: scale(1.1); /* Un pequeño efecto para confirmar que es clickeable */
+}
