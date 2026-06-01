@@ -1,58 +1,269 @@
-<div class="foro-page-container">
-  <div class="foro-header pt-3 ps-4 mb-3">
-    <h2 class="foro-title m-0 text-secondary" style="padding-bottom: 1%">FORO</h2>
-    <hr class="foro-title-divider m-0">
-  </div>
+<div class="forum-page-container">
 
-  <div class="container chat-main-container">
-    <div class="card chat-panel-card shadow-sm">
-
-      <div class="card-body chat-body-scroller">
-
-        <div class="message message-incoming d-flex align-items-center mb-3">
-          <i class="bi bi-person-circle user-icon-incoming me-2"></i>
-          <div class="bubble bubble-incoming p-3 text-secondary">
-            Hola
-          </div>
-        </div>
-
-        <div class="message message-incoming d-flex align-items-center mb-3">
-          <i class="bi bi-person-circle user-icon-incoming me-2"></i>
-          <div class="bubble bubble-incoming p-3 text-secondary">
-            Hola
-          </div>
-        </div>
-
-        <div class="message message-incoming d-flex align-items-center mb-3">
-          <i class="bi bi-person-circle user-icon-incoming me-2"></i>
-          <div class="bubble bubble-incoming p-3 text-secondary">
-            Hola
-          </div>
-        </div>
-
-        <div class="message message-incoming d-flex align-items-center mb-3">
-          <i class="bi bi-person-circle user-icon-incoming me-2"></i>
-          <div class="bubble bubble-incoming p-3 text-secondary">
-            Hola
-          </div>
-        </div>
-
-        <div class="message message-outgoing d-flex align-items-center justify-content-end mb-3">
-          <div class="bubble bubble-outgoing p-3 text-white">
-            Hola
-          </div>
-          <i class="bi bi-person-circle user-icon-outgoing ms-2"></i>
-        </div>
-
-      </div>
-      <div class="card-footer chat-input-bar bg-white border-top">
-        <div class="input-group align-items-center p-2">
-          <input type="text" class="form-control rounded-pill input-text-area me-2" placeholder="Ingresa algo...">
-          <button class="btn btn-link btn-add p-0" type="button">
-            <i class="bi bi-plus-circle-fill text-secondary"></i>
-          </button>
-        </div>
-      </div>
+  @if (errorMessage()) {
+    <div class="alert-message">
+      {{ errorMessage() }}
+      <button type="button" class="alert-close" (click)="errorMessage.set('')">×</button>
     </div>
-  </div>
+  }
+
+  <section class="forum-shell">
+    <aside class="community-sidebar">
+      <div class="sidebar-heading">
+        <span>Comunidades</span>
+        <span class="community-count">{{ communities().length }}</span>
+      </div>
+
+      <div class="community-list">
+        @if (isLoadingCommunities()) {
+          <div class="empty-state compact">Cargando comunidades...</div>
+        } @else if (communities().length === 0) {
+          <div class="empty-state compact">Todavía no hay comunidades.</div>
+        } @else {
+          @for (community of communities(); track community.id_community) {
+            <button
+              type="button"
+              class="community-item"
+              [class.active]="selectedCommunity()?.id_community === community.id_community"
+              (click)="selectCommunity(community)"
+            >
+              <span class="community-avatar">{{ getCommunityInitials(community) }}</span>
+              <span class="community-info">
+                <strong>{{ community.name }}</strong>
+                <small>
+                  {{ community.message_count || 0 }} mensajes
+                  @if (community.last_message?.content) {
+                    · {{ community.last_message?.content }}
+                  }
+                </small>
+              </span>
+            </button>
+          }
+        }
+      </div>
+
+      @if (isGuest()) {
+        <div class="guest-note">
+          Los invitados pueden ver el foro, pero no crear comunidades ni enviar mensajes.
+        </div>
+      }
+    </aside>
+
+    <main class="conversation-panel">
+      @if (selectedCommunity()) {
+        <div class="conversation-header">
+          <div class="community-title-block">
+            <span class="community-avatar large">{{ getCommunityInitials(selectedCommunity()) }}</span>
+            <div>
+              <h3>{{ selectedCommunity()?.name }}</h3>
+              <p>{{ selectedCommunity()?.message_count || 0 }} mensajes en la comunidad</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="message-scroller" #messageScroller>
+          @if (isLoadingMessages()) {
+            <div class="empty-state">Cargando conversación...</div>
+          } @else if (messages().length === 0) {
+            <div class="empty-state">
+              <i class="bi bi-chat-square-text"></i>
+              <strong>Sin preguntas todavía</strong>
+              <span>Sé la primera persona en iniciar la conversación.</span>
+            </div>
+          } @else {
+            @for (message of messages(); track message.id_message) {
+              <article class="message-row" [ngClass]="getMessageClass(message)">
+                <div class="message-avatar">
+                  @if (message.sender?.foto_perfil_url) {
+                    <img [src]="message.sender?.foto_perfil_url" alt="Avatar">
+                  } @else {
+                    <i class="bi bi-person-circle"></i>
+                  }
+                </div>
+
+                <div class="message-bubble" [class.deleted]="message.deleted">
+                  <div class="message-meta">
+                    <span>{{ getDisplayName(message) }}</span>
+                    <small>{{ formatDate(message.created_at) }}</small>
+                    @if (message.pinned && !message.deleted) {
+                      <span class="pin-badge">Anclado</span>
+                    }
+                  </div>
+
+                  @if (message.deleted) {
+                    <p class="deleted-text">Mensaje eliminado</p>
+                  } @else {
+                    @if (message.content) {
+                      <p class="message-text">{{ message.content }}</p>
+                    }
+
+                    @if (message.attachments.length > 0) {
+                      <div class="message-images">
+                        @for (attachment of message.attachments; track attachment.url) {
+                          <a [href]="attachment.url" target="_blank" rel="noopener" class="image-link">
+                            <img [src]="attachment.url" [alt]="attachment.original_name || 'Imagen adjunta'">
+                          </a>
+                        }
+                      </div>
+                    }
+
+                    <div class="message-actions">
+                      @if (canPinMessage()) {
+                        <button type="button" (click)="toggleMessagePin(message)">
+                          {{ message.pinned ? 'Desanclar' : 'Anclar' }}
+                        </button>
+                      }
+
+                      @if (canDeleteMessage(message)) {
+                        <button type="button" class="danger-link" (click)="deleteMessage(message)">
+                          Borrar
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          }
+        </div>
+
+        <footer class="composer">
+          @if (imagePreviewUrls().length > 0) {
+            <div class="preview-strip">
+              @for (preview of imagePreviewUrls(); track preview; let index = $index) {
+                <div class="preview-item">
+                  <img [src]="preview" alt="Vista previa">
+                  <button type="button" (click)="removeSelectedImage(index)">×</button>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="composer-row">
+            <label class="icon-button" [class.disabled]="!canSendMessage()" title="Subir imagen">
+              <i class="bi bi-image"></i>
+              <input type="file" accept="image/*" multiple (change)="onImageInputChange($event)" [disabled]="!canSendMessage()">
+            </label>
+
+            <input
+              type="text"
+              class="composer-input"
+              placeholder="Haz una pregunta o responde a la comunidad..."
+              [ngModel]="newMessage()"
+              (ngModelChange)="newMessage.set($event)"
+              [disabled]="!canSendMessage()"
+              (keyup.enter)="sendMessage()"
+            >
+
+            <button type="button" class="send-button" [disabled]="!canSendMessage()" (click)="sendMessage()">
+              @if (isSending()) {
+                Enviando...
+              } @else {
+                Enviar
+              }
+            </button>
+          </div>
+
+          @if (isGuest()) {
+            <p class="composer-help">Inicia sesión con una cuenta registrada para participar.</p>
+          }
+        </footer>
+      } @else {
+        <div class="empty-state full">
+          <i class="bi bi-people"></i>
+          <strong>Selecciona una comunidad</strong>
+          <span>Elige una comunidad de la izquierda para ver sus preguntas y respuestas.</span>
+        </div>
+      }
+    </main>
+
+    <aside class="details-panel">
+      @if (selectedCommunity()) {
+        <section class="detail-card">
+          <h4>Descripción</h4>
+          <p>{{ selectedCommunity()?.description || 'Esta comunidad todavía no tiene descripción.' }}</p>
+        </section>
+
+        <section class="detail-card">
+          <h4>Mensajes anclados</h4>
+
+          @if (pinnedMessages().length === 0) {
+            <p class="muted-text">No hay mensajes anclados.</p>
+          } @else {
+            <div class="pinned-list">
+              @for (message of pinnedMessages(); track message.id_message) {
+                <div class="pinned-item">
+                  <i class="bi bi-pin-angle-fill"></i>
+                  <span>{{ message.content || 'Mensaje con imagen' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="detail-card">
+          <h4>Imágenes</h4>
+
+          @if (communityImages().length === 0) {
+            <p class="muted-text">Todavía no se han subido imágenes.</p>
+          } @else {
+            <div class="gallery-grid">
+              @for (image of communityImages(); track image.url) {
+                <a [href]="image.url" target="_blank" rel="noopener">
+                  <img [src]="image.url" [alt]="image.original_name || 'Imagen del foro'">
+                </a>
+              }
+            </div>
+          }
+        </section>
+      }
+    </aside>
+  </section>
+
+  @if (canCreateCommunity()) {
+    <button type="button" class="primary-action forum-floating-action" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle"></i>
+      Nueva comunidad
+    </button>
+  }
 </div>
+
+@if (showCreateModal()) {
+  <div class="modal-backdrop">
+    <form class="community-modal" (ngSubmit)="createCommunity()">
+      <div class="modal-header">
+        <h3>Nueva comunidad</h3>
+        <button type="button" (click)="closeCreateModal()">×</button>
+      </div>
+
+      <label>
+        Nombre
+        <input
+          type="text"
+          placeholder="Ej. Inteligencia Artificial"
+          [ngModel]="communityName()"
+          (ngModelChange)="communityName.set($event)"
+          name="communityName"
+          maxlength="120"
+          required
+        >
+      </label>
+
+      <label>
+        Descripción
+        <textarea
+          placeholder="Explica de qué tratará esta comunidad."
+          [ngModel]="communityDescription()"
+          (ngModelChange)="communityDescription.set($event)"
+          name="communityDescription"
+          rows="4"
+        ></textarea>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-action" (click)="closeCreateModal()">Cancelar</button>
+        <button type="submit" class="primary-action">Crear comunidad</button>
+      </div>
+    </form>
+  </div>
+}

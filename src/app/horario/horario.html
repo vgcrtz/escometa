@@ -1,25 +1,4 @@
 <div class="page-horario h-100 d-flex flex-column bg-white">
-  <div class="pt-3 ps-3 pe-3">
-    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
-      <div>
-        <h2 class="m-0 text-dark fs-2 title-horario">HORARIO</h2>
-        <p class="m-0 text-muted small">
-          @if (isAdmin()) {
-            Administra materias, grupos, ofertas, inscripciones y sesiones de clase. Los docentes se cargan desde la BD.
-          } @else {
-            Consulta tus materias inscritas y agrega materias disponibles por semestre y grupo.
-          }
-        </p>
-      </div>
-
-      @if (isAdmin()) {
-        <button type="button" class="btn-refresh" [disabled]="isSaving()" (click)="recargarDatos()">
-          Actualizar datos
-        </button>
-      }
-    </div>
-    <hr class="mt-2 mb-0 border-secondary">
-  </div>
 
   @if (errorMessage()) {
     <div class="alert alert-danger mx-auto mt-3 w-75 mb-0" role="alert">
@@ -557,5 +536,11 @@
         @if (editMode()) { Cerrar edición } @else { Editar horario }
       </button>
     }
+  }
+
+  @if (isAdmin()) {
+    <button type="button" class="btn-refresh btn-floating-refresh" [disabled]="isSaving()" (click)="recargarDatos()">
+      Actualizar datos
+    </button>
   }
 </div>

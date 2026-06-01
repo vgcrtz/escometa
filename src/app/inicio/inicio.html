@@ -1,27 +1,727 @@
 <div class="inicio-container">
-  <div class="content-wrapper">
+  <div class="content-wrapper dashboard-layout">
+    <aside class="left-panel">
+      <header class="greeting-section">
+        <div class="greeting-block">
+          <p class="bienvenida">BIENVENIDO,</p>
+          <h1 class="rol">{{ userRolTexto() }}</h1>
+        </div>
+        <p class="subtitle">¿Qué harás hoy?</p>
+      </header>
 
-    <header class="greeting-section">
-      <div class="greeting-block">
-        <p class="bienvenida">BIENVENIDO,</p>
-        <h1 class="rol">{{ userRolTexto() }}</h1>
-      </div>
-      <p class="subtitle">¿Qué harás hoy?</p>
-    </header>
-
-    <div class="cards-grid">
-      @for (opcion of opcionesFiltradas(); track opcion.titulo) {
-        <button type="button" class="action-card" (click)="navegar(opcion.link)">
-          <div class="icon-circle" [class]="opcion.colorClase">
-            <img [src]="opcion.icono" [alt]="opcion.titulo" class="dummy-icon">
+      <div class="cards-grid">
+        @for (opcion of opcionesFiltradas(); track opcion.titulo) {
+          <button type="button" class="action-card" (click)="goTo(opcion.link)">
+            <div class="icon-circle" [class]="opcion.colorClase">
+              <img
+                [src]="opcion.icono"
+                [alt]="opcion.titulo"
+                class="dummy-icon"
+              />
+            </div>
+            <span class="card-text">{{ opcion.titulo }}</span>
+          </button>
+        } @empty {
+          <div class="empty-actions">
+            <p>
+              No cuentas con paneles de acción disponibles para este perfil.
+            </p>
           </div>
-          <span class="card-text">{{ opcion.titulo }}</span>
-        </button>
-      } @empty {
-        <div class="text-center p-5 w-100">
-          <p class="text-muted">No cuentas con paneles de acción disponibles para este perfil.</p>
+        }
+      </div>
+    </aside>
+
+    <section class="news-panel" aria-labelledby="important-news-title">
+      <div class="news-header">
+        <p class="news-kicker">Panel personalizado</p>
+        <h2 id="important-news-title">Noticias importantes</h2>
+        <p class="news-description">
+          Avisos filtrados de acuerdo con tu perfil académico.
+        </p>
+      </div>
+
+      @if (newsLoading()) {
+        <div class="news-status-card">
+          <div class="loading-dot"></div>
+          <p>Buscando noticias relevantes...</p>
+        </div>
+      } @else if (newsError()) {
+        <div class="news-status-card warning">
+          <h3>No se pudieron cargar las noticias</h3>
+          <p>{{ newsError() }}</p>
+          <button
+            type="button"
+            class="secondary-action"
+            (click)="loadImportantNews()"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
+      } @else if (importantNews().length > 0) {
+        <div class="news-list">
+          @for (notice of importantNews(); track notice.id_anuncio) {
+            <article
+              class="news-card news-card-clickable"
+              [ngClass]="getPriorityClass(notice.prioridad)"
+              tabindex="0"
+              (click)="openNoticeDetail(notice)"
+              (keydown.enter)="openNoticeDetail(notice)"
+            >
+              <div class="news-card-header">
+                <span class="priority-badge">{{
+                  getPriorityText(notice.prioridad)
+                }}</span>
+                <div class="news-card-actions">
+                  <span class="news-date">{{ formatDate(notice.fecha) }}</span>
+                  @if (canDeleteNotice(notice)) {
+                    <button
+                      type="button"
+                      class="notice-delete-button"
+                      [disabled]="isDeletingNotice(notice)"
+                      (click)="$event.stopPropagation(); deleteNotice(notice)"
+                      aria-label="Eliminar noticia"
+                    >
+                      {{
+                        isDeletingNotice(notice) ? "Eliminando..." : "Eliminar"
+                      }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <h3>{{ getNoticeTitle(notice) }}</h3>
+              <p>{{ notice.contenido || "" }}</p>
+
+              @if (getNoticeImages(notice).length > 0) {
+                <div class="news-images">
+                  @for (image of getNoticeImages(notice); track image.url) {
+                    <img
+                      [src]="image.url"
+                      [alt]="image.nombre_original || 'Imagen del aviso'"
+                    />
+                  }
+                </div>
+              }
+
+              <div class="news-card-footer">
+                <button
+                  type="button"
+                  class="detail-link-button"
+                  (click)="$event.stopPropagation(); openNoticeDetail(notice)"
+                >
+                  Ver detalles
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="news-status-card empty-news">
+          <div class="empty-icon">i</div>
+          <h3>No hay noticias relevantes para ti</h3>
+          <p>
+            Por ahora no encontramos avisos importantes dirigidos a tu perfil.
+            Puedes explorar más información desde el buscador.
+          </p>
+          <button
+            type="button"
+            class="primary-action"
+            (click)="goTo('/busqueda')"
+          >
+            Explorar en el buscador
+          </button>
         </div>
       }
-    </div>
+    </section>
   </div>
+
+  @if (canPost()) {
+    <button
+      type="button"
+      class="floating-create-button"
+      (click)="openCreateModal()"
+      aria-label="Crear noticia importante"
+    >
+      +
+    </button>
+  }
+
+  @if (showCreateModal()) {
+    <div class="post-modal-backdrop" (click)="closeCreateModal()">
+      <section
+        class="post-modal"
+        aria-labelledby="create-news-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="post-modal-header">
+          <div>
+            <p class="news-kicker">
+              {{ isEditingAnnouncement() ? "Editar aviso" : "Nuevo aviso" }}
+            </p>
+            <h2 id="create-news-title">
+              {{
+                isEditingAnnouncement()
+                  ? "Editar noticia importante"
+                  : "Publicar noticia importante"
+              }}
+            </h2>
+          </div>
+          <button
+            type="button"
+            class="modal-close-button"
+            (click)="closeCreateModal()"
+            aria-label="Cerrar formulario"
+          >
+            ×
+          </button>
+        </header>
+
+        @if (isEditingAnnouncement()) {
+          <section class="locked-edit-panel" aria-label="Campos no editables">
+            <div class="locked-edit-heading">
+              <div>
+                <span>Campos bloqueados</span>
+                <p>Estos datos pertenecen al registro original del aviso y no se modifican desde este formulario.</p>
+              </div>
+            </div>
+
+            <div class="form-grid three-columns locked-fields-grid">
+              <label class="field-group locked-field">
+                <span>ID del aviso</span>
+                <input type="text" [value]="getEditingNoticeIdText()" disabled readonly />
+              </label>
+
+              <label class="field-group locked-field">
+                <span>Publicado por</span>
+                <input type="text" [value]="getEditingNoticeEmitterText()" disabled readonly />
+              </label>
+
+              <label class="field-group locked-field">
+                <span>Fecha de creación</span>
+                <input type="text" [value]="getEditingNoticeDateText()" disabled readonly />
+              </label>
+            </div>
+          </section>
+
+          <div class="editable-fields-title">Campos editables</div>
+        }
+
+        <form class="post-form" (submit)="createAnnouncement($event)">
+          <div class="form-grid two-columns">
+            <label class="field-group">
+              <span>Título</span>
+              <input
+                type="text"
+                [value]="createForm().titulo"
+                (input)="updateTextField('titulo', $event)"
+                maxlength="160"
+                placeholder="Ej. Mantenimiento de plataforma"
+              />
+            </label>
+
+            <label class="field-group">
+              <span>Nivel de urgencia</span>
+              <select
+                required
+                [value]="createForm().prioridad"
+                (change)="updateTextField('prioridad', $event)"
+              >
+                <option value="" disabled>Selecciona una prioridad</option>
+                @for (priority of priorities; track priority.value) {
+                  <option [value]="priority.value">{{ priority.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <label class="field-group">
+            <span>Contenido *</span>
+            <textarea
+              required
+              rows="4"
+              [value]="createForm().contenido"
+              (input)="updateTextField('contenido', $event)"
+              placeholder="Escribe el aviso que verá la comunidad"
+            ></textarea>
+          </label>
+
+          <div class="form-grid two-columns">
+            <label class="field-group">
+              <span>Categoría</span>
+              <select
+                required
+                [value]="createForm().categoria"
+                (change)="updateTextField('categoria', $event)"
+              >
+                <option value="" disabled>Selecciona una categoría</option>
+                @for (category of categories; track category.value) {
+                  <option [value]="category.value">{{ category.label }}</option>
+                }
+              </select>
+            </label>
+
+            <div class="check-row">
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="createForm().fijado"
+                  (change)="updateBooleanField('fijado', $event)"
+                />
+                Fijar como noticia importante
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="createForm().activo"
+                  (change)="updateBooleanField('activo', $event)"
+                />
+                Activo
+              </label>
+            </div>
+          </div>
+
+          <div class="form-grid two-columns">
+            <label class="field-group">
+              <span>Visible desde</span>
+              <input
+                type="datetime-local"
+                [value]="createForm().visible_desde"
+                (input)="updateTextField('visible_desde', $event)"
+              />
+            </label>
+
+            <label class="field-group">
+              <span>Visible hasta</span>
+              <input
+                type="datetime-local"
+                [value]="createForm().visible_hasta"
+                (input)="updateTextField('visible_hasta', $event)"
+              />
+            </label>
+          </div>
+
+          <div class="form-section-title">Destino</div>
+          <p class="form-help">
+            Déjalo vacío para publicar de forma general. Puedes combinar rol,
+            carrera, semestre, grupo o materia-grupo.
+          </p>
+
+          <div class="form-grid two-columns">
+            <label class="field-group">
+              <span>Rol objetivo</span>
+              <select
+                [value]="createForm().target_tipo_usuario"
+                (change)="updateTextField('target_tipo_usuario', $event)"
+              >
+                @for (targetRole of targetRoles; track targetRole.value) {
+                  <option [value]="targetRole.value">
+                    {{ targetRole.label }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <label class="field-group">
+              <span>Carrera</span>
+              <select
+                [value]="createForm().target_carrera"
+                (change)="updateTextField('target_carrera', $event)"
+              >
+                @for (career of careers; track career.value) {
+                  <option [value]="career.value">{{ career.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <div class="form-grid three-columns">
+            <label class="field-group">
+              <span>Semestre</span>
+              <input
+                type="number"
+                min="1"
+                [value]="createForm().target_semestre"
+                (input)="updateTextField('target_semestre', $event)"
+                placeholder="6"
+              />
+            </label>
+
+            <label class="field-group">
+              <span>ID grupo</span>
+              <input
+                type="number"
+                min="1"
+                [value]="createForm().target_id_grupo"
+                (input)="updateTextField('target_id_grupo', $event)"
+                placeholder="1"
+              />
+            </label>
+
+            <label class="field-group">
+              <span>ID materia-grupo</span>
+              <input
+                type="number"
+                min="1"
+                [value]="createForm().target_id_grupo_materia"
+                (input)="updateTextField('target_id_grupo_materia', $event)"
+                placeholder="5"
+              />
+            </label>
+          </div>
+
+          <label class="field-group">
+            <span>Destinatarios directos</span>
+            <input
+              type="text"
+              [value]="createForm().destinatarios"
+              (input)="updateTextField('destinatarios', $event)"
+              placeholder="IDs separados por coma. Ej. 2, 3, 13"
+            />
+          </label>
+
+          <div class="form-section-title">Imagen opcional</div>
+          <p class="form-help">
+            Puedes subir una imagen desde tu equipo o pegar una URL pública. El
+            nombre es opcional.
+          </p>
+
+          <div class="image-upload-box">
+            <div class="image-upload-actions">
+              <button
+                type="button"
+                class="upload-image-button"
+                [disabled]="isImageUploading() || posting()"
+                (click)="newsImageInput.click()"
+              >
+                {{ isImageUploading() ? "Subiendo imagen..." : "Subir imagen" }}
+              </button>
+              <input
+                type="file"
+                #newsImageInput
+                (change)="onNewsImageSelected($event)"
+                accept="image/*"
+                hidden
+              />
+
+              @if (uploadedImageName()) {
+                <span class="uploaded-image-name">{{
+                  uploadedImageName()
+                }}</span>
+              } @else {
+                <span class="uploaded-image-name muted"
+                  >Sin archivo seleccionado</span
+                >
+              }
+            </div>
+
+            @if (createForm().image_url) {
+              <button
+                type="button"
+                class="clear-image-button"
+                [disabled]="isImageUploading() || posting()"
+                (click)="clearSelectedImage()"
+              >
+                Quitar imagen
+              </button>
+            }
+          </div>
+
+          <div class="form-grid two-columns">
+            <label class="field-group">
+              <span>URL de imagen</span>
+              <input
+                type="url"
+                [value]="createForm().image_url"
+                (input)="updateTextField('image_url', $event)"
+                placeholder="https://..."
+              />
+            </label>
+
+            <label class="field-group">
+              <span>Nombre de la foto</span>
+              <input
+                type="text"
+                [value]="createForm().image_name"
+                (input)="updateTextField('image_name', $event)"
+                placeholder="aviso.jpg"
+              />
+            </label>
+          </div>
+
+          @if (createForm().image_url) {
+            <div class="image-preview-card">
+              <img
+                [src]="createForm().image_url"
+                alt="Vista previa de la imagen del aviso"
+              />
+              <span>Vista previa</span>
+            </div>
+          }
+
+          @if (postError()) {
+            <div class="form-feedback error">{{ postError() }}</div>
+          }
+
+          @if (postSuccess()) {
+            <div class="form-feedback success">{{ postSuccess() }}</div>
+          }
+
+          <div class="post-modal-actions">
+            <button
+              type="button"
+              class="secondary-action"
+              (click)="closeCreateModal()"
+              [disabled]="posting() || isImageUploading()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="primary-action"
+              [disabled]="posting() || isImageUploading()"
+            >
+              {{
+                posting()
+                  ? isEditingAnnouncement()
+                    ? "Actualizando..."
+                    : "Publicando..."
+                  : isImageUploading()
+                    ? "Subiendo imagen..."
+                    : isEditingAnnouncement()
+                      ? "Actualizar noticia"
+                      : "Publicar noticia"
+              }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (selectedNotice(); as notice) {
+    <div
+      class="post-modal-backdrop detail-modal-backdrop"
+      (click)="closeNoticeDetail()"
+    >
+      <section
+        class="post-modal news-detail-modal"
+        aria-labelledby="notice-detail-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="post-modal-header">
+          <div>
+            <p class="news-kicker">Detalle de aviso</p>
+            <h2 id="notice-detail-title">{{ getNoticeTitle(notice) }}</h2>
+          </div>
+          <button
+            type="button"
+            class="modal-close-button"
+            (click)="closeNoticeDetail()"
+            aria-label="Cerrar detalle"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="news-detail-content">
+          @if (getNoticeImages(notice).length > 0) {
+            <div class="news-detail-images">
+              @for (image of getNoticeImages(notice); track image.url) {
+                <figure>
+                  <img
+                    [src]="image.url"
+                    [alt]="image.nombre_original || 'Imagen del aviso'"
+                  />
+                  @if (image.nombre_original) {
+                    <figcaption>{{ image.nombre_original }}</figcaption>
+                  }
+                </figure>
+              }
+            </div>
+          }
+
+          <p class="news-detail-text">{{ notice.contenido || "" }}</p>
+
+          <div class="news-detail-tags">
+            @for (tag of getNoticeTags(notice); track tag) {
+              <span>{{ tag }}</span>
+            }
+          </div>
+
+          <div class="news-detail-meta-grid">
+            <div>
+              <span>Fecha</span>
+              <strong>{{ formatDate(notice.fecha) || "Sin fecha" }}</strong>
+            </div>
+            <div>
+              <span>Emisor</span>
+              <strong>{{
+                notice.emisor ||
+                  (notice.id_emisor
+                    ? "Usuario #" + notice.id_emisor
+                    : "Sin emisor")
+              }}</strong>
+            </div>
+            <div>
+              <span>Categoría</span>
+              <strong>{{ getCategoryText(notice.categoria) }}</strong>
+            </div>
+            <div>
+              <span>Nivel de urgencia</span>
+              <strong>{{ getPriorityText(notice.prioridad) }}</strong>
+            </div>
+            <div>
+              <span>Visible desde</span>
+              <strong>{{
+                formatDate(notice.visible_desde) || "Inmediato"
+              }}</strong>
+            </div>
+            <div>
+              <span>Visible hasta</span>
+              <strong>{{
+                formatDate(notice.visible_hasta) || "Sin vencimiento"
+              }}</strong>
+            </div>
+          </div>
+
+          @if (getNoticeTargets(notice).length > 0) {
+            <div class="news-detail-section">
+              <h3>Destino / etiquetas</h3>
+              <div class="target-list">
+                @for (target of getNoticeTargets(notice); track $index) {
+                  <div class="target-card">
+                    @if (target.tipo_usuario) {
+                      <span
+                        >Rol: <strong>{{ target.tipo_usuario }}</strong></span
+                      >
+                    }
+                    @if (target.carrera) {
+                      <span
+                        >Carrera: <strong>{{ target.carrera }}</strong></span
+                      >
+                    }
+                    @if (target.semestre) {
+                      <span
+                        >Semestre: <strong>{{ target.semestre }}</strong></span
+                      >
+                    }
+                    @if (target.grupo) {
+                      <span
+                        >Grupo: <strong>{{ target.grupo }}</strong></span
+                      >
+                    }
+                    @if (target.id_grupo && !target.grupo) {
+                      <span
+                        >ID grupo: <strong>{{ target.id_grupo }}</strong></span
+                      >
+                    }
+                    @if (target.id_grupo_materia) {
+                      <span
+                        >ID materia-grupo:
+                        <strong>{{ target.id_grupo_materia }}</strong></span
+                      >
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (getNoticeRecipients(notice).length > 0) {
+            <div class="news-detail-section">
+              <h3>Destinatarios directos</h3>
+              <p class="recipient-list">
+                {{ getNoticeRecipients(notice).join(", ") }}
+              </p>
+            </div>
+          }
+
+          <div class="post-modal-actions">
+            @if (canEditNotice(notice)) {
+              <button
+                type="button"
+                class="secondary-action"
+                (click)="openEditModal(notice)"
+              >
+                Editar noticia
+              </button>
+            }
+            @if (canDeleteNotice(notice)) {
+              <button
+                type="button"
+                class="notice-delete-button detail-delete"
+                [disabled]="isDeletingNotice(notice)"
+                (click)="deleteNotice(notice)"
+              >
+                {{
+                  isDeletingNotice(notice)
+                    ? "Eliminando..."
+                    : "Eliminar noticia"
+                }}
+              </button>
+            }
+            <button
+              type="button"
+              class="primary-action"
+              (click)="closeNoticeDetail()"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (showDeleteConfirm()) {
+    @if (noticePendingDeletion(); as notice) {
+      <div
+        class="post-modal-backdrop confirm-modal-backdrop"
+        (click)="cancelDeleteNotice()"
+      >
+      <section
+        class="post-modal delete-confirm-modal"
+        aria-labelledby="delete-confirm-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="delete-confirm-icon">!</div>
+
+        <div class="delete-confirm-copy">
+          <p class="news-kicker">Confirmar eliminación</p>
+          <h2 id="delete-confirm-title">¿Eliminar esta noticia?</h2>
+          <p>
+            Esta acción quitará el aviso del inicio y también sus imágenes,
+            destinatarios y etiquetas asociadas.
+          </p>
+          <div class="delete-confirm-notice-title">
+            {{ getNoticeTitle(notice) }}
+          </div>
+        </div>
+
+        @if (deleteError()) {
+          <div class="form-feedback error">{{ deleteError() }}</div>
+        }
+
+        <div class="post-modal-actions delete-confirm-actions">
+          <button
+            type="button"
+            class="secondary-action"
+            [disabled]="isDeletingPendingNotice()"
+            (click)="cancelDeleteNotice()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="notice-delete-button confirm-delete-button"
+            [disabled]="isDeletingPendingNotice()"
+            (click)="confirmDeleteNotice()"
+          >
+            {{ isDeletingPendingNotice() ? "Eliminando..." : "Sí, eliminar" }}
+          </button>
+        </div>
+        </section>
+      </div>
+    }
+  }
 </div>

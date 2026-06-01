@@ -454,3 +454,24 @@
         width: 100%;
     }
 }
+
+.btn-floating-refresh {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 1000;
+    border-radius: 999px;
+    padding: 14px 26px;
+    box-shadow: 0 8px 20px rgba(33, 123, 160, 0.35);
+}
+
+.btn-floating-refresh:hover:not(:disabled) {
+    box-shadow: 0 10px 24px rgba(33, 123, 160, 0.42);
+}
+
+@media (max-width: 992px) {
+    .btn-floating-refresh {
+        right: 18px;
+        bottom: 18px;
+    }
+}

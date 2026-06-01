@@ -1,49 +1,293 @@
-<div class="conversaciones-page">
-  <div class="pt-3 bg-white ps-3">
-    <h2 class="m-0 text-dark fs-4">CONVERSACIONES</h2>
-    <hr class="mt-2 mb-0 border-secondary">
-  </div>
+<div class="conversaciones-page" [ngStyle]="{ 'font-family': fuenteChat() }">
 
-  <div class="d-flex layout-container">
-    <div class="sidebar border-end d-flex flex-column bg-white">
-
-      <div class="d-flex justify-content-between align-items-center ps-3 pe-2 py-2 border-bottom">
-        <h2 class="m-0 text-dark fs-4">GRUPOS</h2>
-        <i class="bi bi-gear text-dark fs-5"></i>
-      </div>
-
-      <div class="grupo-vacio text-center text-secondary d-flex align-items-center justify-content-center border-bottom">
-        <span>No has sido añadido a un<br>grupo.</span>
-      </div>
-
-      <div class="d-flex justify-content-between align-items-center ps-3 pe-2 py-2 border-bottom">
-        <h2 class="m-0 text-dark fs-4">PRIVADO</h2>
-        <div>
-          <i class="bi bi-plus-circle text-dark fs-5 me-2"></i>
-          <i class="bi bi-gear text-dark fs-5"></i>
-        </div>
-      </div>
-
-      <div class="d-flex align-items-center ps-3 pe-2 py-2 border-bottom">
-        <i class="bi bi-person-circle fs-3 me-2 text-dark"></i>
-        <span class="text-dark">Usuario X</span>
-      </div>
-
+  @if (error()) {
+    <div class="feedback feedback-error">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ error() }}
     </div>
+  }
 
-    <div class="chat-area d-flex flex-column w-100 bg-white">
-      <div class="flex-grow-1 d-flex justify-content-center align-items-center text-secondary main-chat-box">
-        <span class="text-center">Inicia una<br>conversación</span>
-      </div>
+  @if (aviso()) {
+    <div class="feedback feedback-success">
+      <i class="bi bi-bell"></i>
+      {{ aviso() }}
+    </div>
+  }
 
-      <div class="chat-input-bar bg-white border-top border-2 p-3">
-        <div class="input-group align-items-center">
-          <input type="text" class="form-control rounded-pill bg-light border-0 me-2 input-texto">
-          <button class="btn btn-link p-0 text-secondary border-0" type="button">
-            <i class="bi bi-plus-circle fs-3 text-dark"></i>
+  <div class="layout-container">
+    <aside class="sidebar">
+      <section class="sidebar-section">
+        <div class="section-title">
+          <h3>GRUPOS</h3>
+          <div class="header-actions">
+            <button type="button" title="Nuevo grupo" (click)="mostrarNuevoGrupo.set(true)">
+              <i class="bi bi-plus-circle"></i>
+            </button>
+            <button type="button" title="Ordenar grupos" (click)="mostrarOrdenGrupos.set(!mostrarOrdenGrupos())">
+              <i class="bi bi-gear"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (mostrarOrdenGrupos()) {
+          <div class="options-box">
+            <span class="options-label">Ordenar por</span>
+            <button type="button" [class.active]="ordenGrupos() === 'recientes'" (click)="cambiarOrdenGrupos('recientes')">Más recientes</button>
+            <button type="button" [class.active]="ordenGrupos() === 'antiguedad'" (click)="cambiarOrdenGrupos('antiguedad')">Antigüedad</button>
+            <button type="button" [class.active]="ordenGrupos() === 'nombre'" (click)="cambiarOrdenGrupos('nombre')">Nombre</button>
+          </div>
+        }
+
+        @if (grupos().length === 0) {
+          <div class="grupo-vacio">
+            <span>No has sido añadido a un<br>grupo.</span>
+          </div>
+        } @else {
+          <div class="chat-list">
+            @for (chat of grupos(); track trackChat($index, chat)) {
+              <button
+                type="button"
+                class="chat-item"
+                [class.selected]="chatSeleccionado()?.id_conversacion === chat.id_conversacion"
+                (click)="seleccionarChat(chat)">
+                <span class="avatar avatar-group">{{ obtenerInicial(chat) }}</span>
+                <span class="chat-info">
+                  <strong>{{ obtenerTituloChat(chat) }}</strong>
+                  <small>{{ obtenerSubtituloChat(chat) }}</small>
+                </span>
+                <span class="chat-date">{{ formatearFecha(chat.actualizado_en) }}</span>
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="sidebar-section">
+        <div class="section-title">
+          <h3>PRIVADO</h3>
+          <div class="header-actions">
+            <button type="button" title="Nuevo chat privado" (click)="mostrarNuevoDirecto.set(true)">
+              <i class="bi bi-plus-circle"></i>
+            </button>
+            <button type="button" title="Opciones de privados" (click)="mostrarOpcionesPrivado.set(!mostrarOpcionesPrivado())">
+              <i class="bi bi-gear"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (mostrarOpcionesPrivado()) {
+          <div class="options-box">
+            <span class="options-label">Filtrar por</span>
+            <button type="button" [class.active]="filtroPrivados() === 'recientes'" (click)="cambiarFiltroPrivados('recientes')">Más recientes</button>
+            <button type="button" [class.active]="filtroPrivados() === 'nombre'" (click)="cambiarFiltroPrivados('nombre')">Nombre</button>
+
+            <span class="options-label">Fuente</span>
+            <select [ngModel]="fuenteChat()" (ngModelChange)="cambiarFuente($event)">
+              <option value="Roboto">Roboto</option>
+              <option value="Arial">Arial</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Courier New">Courier New</option>
+            </select>
+
+            <span class="options-label">Tamaño</span>
+            <div class="segmented">
+              <button type="button" [class.active]="tamanoFuente() === 'pequeña'" (click)="cambiarTamano('pequeña')">A-</button>
+              <button type="button" [class.active]="tamanoFuente() === 'normal'" (click)="cambiarTamano('normal')">A</button>
+              <button type="button" [class.active]="tamanoFuente() === 'grande'" (click)="cambiarTamano('grande')">A+</button>
+            </div>
+          </div>
+        }
+
+        @if (privados().length === 0) {
+          <div class="grupo-vacio compact">
+            <span>No tienes chats privados.</span>
+          </div>
+        } @else {
+          <div class="chat-list">
+            @for (chat of privados(); track trackChat($index, chat)) {
+              <button
+                type="button"
+                class="chat-item"
+                [class.selected]="chatSeleccionado()?.id_conversacion === chat.id_conversacion"
+                (click)="seleccionarChat(chat)">
+                <span class="avatar">
+                  @if (chat.usuario_directo?.foto_perfil_url) {
+                    <img [src]="chat.usuario_directo?.foto_perfil_url" alt="Foto">
+                  } @else {
+                    <i class="bi bi-person-circle"></i>
+                  }
+                </span>
+                <span class="chat-info">
+                  <strong>{{ obtenerTituloChat(chat) }}</strong>
+                  <small>{{ obtenerSubtituloChat(chat) }}</small>
+                </span>
+                <span class="chat-date">{{ formatearFecha(chat.actualizado_en) }}</span>
+              </button>
+            }
+          </div>
+        }
+      </section>
+    </aside>
+
+    <main class="chat-area" [ngClass]="clasesFuente()">
+      @if (!chatSeleccionado()) {
+        <div class="empty-chat">
+          <i class="bi bi-chat-dots"></i>
+          <span>Inicia una<br>conversación</span>
+        </div>
+      } @else {
+        <header class="chat-header">
+          <div class="chat-header-user">
+            <span class="avatar large" [class.avatar-group]="esGrupo(chatSeleccionado()!)">
+              {{ obtenerInicial(chatSeleccionado()!) }}
+            </span>
+            <div>
+              <h3>{{ obtenerTituloChat(chatSeleccionado()) }}</h3>
+              <p>{{ obtenerSubtituloChat(chatSeleccionado()) }}</p>
+            </div>
+          </div>
+
+          <div class="chat-actions">
+            @if (esGrupo(chatSeleccionado()!)) {
+              <button type="button" title="Editar grupo" (click)="mostrarEditarGrupo.set(!mostrarEditarGrupo())">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+            }
+            <button type="button" title="Eliminar conversación" (click)="eliminarChatActual()">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </header>
+
+        @if (mostrarEditarGrupo()) {
+          <div class="inline-editor">
+            <input
+              type="text"
+              [ngModel]="tituloEditado()"
+              (ngModelChange)="tituloEditado.set($event)"
+              placeholder="Nombre del grupo">
+            <button type="button" (click)="guardarTituloGrupo()">Guardar</button>
+          </div>
+        }
+
+        <section class="messages-box" #scrollMensajes>
+          @if (cargandoMensajes()) {
+            <div class="loading-state">Cargando mensajes...</div>
+          }
+
+          @if (!cargandoMensajes() && mensajes().length === 0) {
+            <div class="empty-messages">Todavía no hay mensajes. Envía el primero.</div>
+          }
+
+          @for (mensaje of mensajes(); track trackMensaje($index, mensaje)) {
+            <article class="message-row" [class.mine]="esMensajeMio(mensaje)">
+              <div class="message-bubble">
+                <div class="message-meta">
+                  <strong>{{ mensaje.emisor?.nombre || mensaje.emisor?.nombre_usuario || 'Usuario' }}</strong>
+                  <span>{{ formatearFecha(mensaje.fecha_envio) }}</span>
+                </div>
+
+                @if (mensaje.eliminado) {
+                  <p class="message-deleted">Mensaje eliminado</p>
+                } @else {
+                  @if (mensaje.contenido) {
+                    <p>{{ mensaje.contenido }}</p>
+                  }
+
+                  @if (mensaje.adjuntos?.length) {
+                    <div class="attachments">
+                      @for (adjunto of mensaje.adjuntos; track adjunto.url) {
+                        <a [href]="adjunto.url" target="_blank" rel="noopener noreferrer">
+                          <i class="bi bi-paperclip"></i>
+                          {{ adjunto.nombre_original || 'Archivo adjunto' }}
+                        </a>
+                      }
+                    </div>
+                  }
+                }
+
+                @if (esMensajeMio(mensaje) && !mensaje.eliminado) {
+                  <div class="message-tools">
+                    <button type="button" (click)="editarMensaje(mensaje)">Editar</button>
+                    <button type="button" (click)="eliminarMensaje(mensaje)">Eliminar</button>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </section>
+
+        @if (mostrarAdjunto()) {
+          <div class="attachment-panel">
+            <input
+              type="url"
+              [ngModel]="urlAdjunto()"
+              (ngModelChange)="urlAdjunto.set($event)"
+              placeholder="URL del archivo o imagen">
+            <input
+              type="text"
+              [ngModel]="nombreAdjunto()"
+              (ngModelChange)="nombreAdjunto.set($event)"
+              placeholder="Nombre visible del archivo">
+          </div>
+        }
+
+        <footer class="chat-input-bar">
+          <button type="button" class="icon-button" title="Adjuntar por URL" (click)="mostrarAdjunto.set(!mostrarAdjunto())">
+            <i class="bi bi-plus-circle"></i>
           </button>
+
+          <input
+            type="text"
+            class="input-texto"
+            placeholder="Escribe un mensaje..."
+            [ngModel]="textoMensaje()"
+            (ngModelChange)="textoMensaje.set($event)"
+            (keyup.enter)="enviarMensaje()">
+
+          <button type="button" class="send-button" [disabled]="enviandoMensaje()" (click)="enviarMensaje()">
+            @if (enviandoMensaje()) {
+              <i class="bi bi-hourglass-split"></i>
+            } @else {
+              <i class="bi bi-send-fill"></i>
+            }
+          </button>
+        </footer>
+      }
+    </main>
+  </div>
+
+  <button type="button" class="btn-refresh floating-refresh" (click)="cargarChats()">
+    <i class="bi bi-arrow-clockwise"></i>
+    Actualizar
+  </button>
+
+  @if (mostrarNuevoDirecto()) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <h3>Nuevo chat privado</h3>
+        <p>Ingresa el nickname del usuario con quien quieres conversar.</p>
+        <input type="text" [ngModel]="nuevoDirectoNickname()" (ngModelChange)="nuevoDirectoNickname.set($event)" placeholder="@nickname">
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="mostrarNuevoDirecto.set(false)">Cancelar</button>
+          <button type="button" class="btn-primary" (click)="crearDirecto()">Crear</button>
         </div>
       </div>
     </div>
-  </div>
+  }
+
+  @if (mostrarNuevoGrupo()) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <h3>Nuevo grupo</h3>
+        <p>Separa los nicknames con comas. Ejemplo: @alan, @joshua, @danielito</p>
+        <input type="text" [ngModel]="nuevoGrupoTitulo()" (ngModelChange)="nuevoGrupoTitulo.set($event)" placeholder="Nombre del grupo">
+        <textarea [ngModel]="nuevoGrupoParticipantes()" (ngModelChange)="nuevoGrupoParticipantes.set($event)" placeholder="Nicknames de participantes"></textarea>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="mostrarNuevoGrupo.set(false)">Cancelar</button>
+          <button type="button" class="btn-primary" (click)="crearGrupo()">Crear grupo</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

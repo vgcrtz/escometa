@@ -1,67 +1,400 @@
 <div class="profile-page-container">
   <div class="back-navigation">
-    <button type="button" class="btn-back" (click Sis)="regresar()">← Volver</button>
+    <button type="button" class="btn-back" (click)="regresar()">← Volver</button>
   </div>
+
+  @if (errorMessage()) {
+    <div class="feedback-alert feedback-error">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="feedback-alert feedback-success">{{ successMessage() }}</div>
+  }
 
   <div class="profile-card">
     @if (isLoading()) {
-      <div class="text-center p-4">
+      <div class="loading-spinner-container">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted">Sincronizando información...</p>
+        <p>Sincronizando información...</p>
       </div>
     } @else if (userData()) {
-
       <div class="profile-header">
-        <div class="avatar-container" [class.avatar-loading-blur]="isUploading()">
+        <input type="file" #fileInput (change)="onFotoSelected($event)" accept="image/*" hidden>
+
+        <button
+          type="button"
+          class="avatar-container"
+          [class.avatar-editable]="editMode()"
+          [class.avatar-loading-blur]="isUploading()"
+          [disabled]="isUploading() || !editMode()"
+          (click)="onAvatarClick(fileInput)"
+          title="Cambiar foto de perfil"
+        >
           <img [src]="userData().foto_perfil_url || defaultAvatar" alt="Avatar" class="profile-avatar">
+
+          @if (editMode() && !isUploading()) {
+            <span class="avatar-edit-overlay">Cambiar foto</span>
+          }
 
           @if (isUploading()) {
             <div class="avatar-spinner-overlay">
               <div class="spinner-border spinner-border-sm text-light" role="status"></div>
             </div>
           }
-        </div>
+        </button>
 
         <div class="profile-identity">
           <div class="name-block">
-            <h2 class="user-fullname">{{ userData().nombre }}</h2>
-            <span class="user-username">&#64;{{ userData().nombre_usuario }}</span>
+            <h2 class="user-fullname">{{ userData().nombre || 'Usuario ESCOMETA' }}</h2>
+            <span class="user-username">&#64;{{ userData().nombre_usuario || 'sin_usuario' }}</span>
           </div>
 
-          <div class="action-buttons-group d-flex gap-2">
-            <button type="button" class="btn-change-photo" [disabled]="isUploading()" (click)="fileInput.click()">
-              Cambiar Foto
-            </button>
-            <input type="file" #fileInput (change)="onFotoSelected($event)" accept="image/*" style="display: none;">
-
-            @if (isAdmin()) {
-              <button type="button" class="btn-edit-profile">Editar Perfil</button>
+          <div class="action-buttons-group">
+            @if (!editMode()) {
+              <button type="button" class="btn-edit-profile" (click)="startProfileEdit()">
+                Editar perfil
+              </button>
+            } @else {
+              @if (canEditOwnData()) {
+                <button type="button" class="btn-edit-profile" [disabled]="isSaving()" (click)="saveOwnProfile()">
+                  {{ isSaving() ? 'Guardando...' : 'Guardar cambios' }}
+                </button>
+              } @else {
+                <button type="button" class="btn-edit-profile" (click)="finishPhotoEdit()">
+                  Finalizar edición
+                </button>
+              }
+              <button type="button" class="btn-secondary-action" [disabled]="isSaving()" (click)="cancelProfileEdit()">
+                Cancelar
+              </button>
             }
           </div>
         </div>
       </div>
 
+      @if (editMode()) {
+        <div class="edit-help-box">
+          Haz click en el avatar para cambiar tu foto.
+          @if (!canEditOwnData()) {
+            <span>Tu rol solo tiene endpoint disponible para actualizar la foto de perfil.</span>
+          }
+        </div>
+      }
+
       <div class="profile-divider"></div>
 
-      <div class="profile-details">
-        <div class="detail-row">
-          <span class="detail-label">Nombre completo</span>
-          <span class="detail-value">{{ userData().nombre }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Nombre de usuario</span>
-          <span class="detail-value text-muted">&#64;{{ userData().nombre_usuario }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Correo electrónico</span>
-          <span class="detail-value">{{ userData().correo }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Tipo de usuario</span>
-          <span class="detail-value badge-role">{{ userData().tipo_usuario }}</span>
-        </div>
-      </div>
+      @if (editMode() && canEditOwnData()) {
+        <div class="profile-edit-form">
+          <label class="form-field">
+            <span>Nombre completo</span>
+            <input type="text" [(ngModel)]="editForm.nombre" placeholder="Nombre completo">
+          </label>
 
+          <label class="form-field">
+            <span>Nombre de usuario</span>
+            <input type="text" [(ngModel)]="editForm.nombre_usuario" placeholder="Nombre de usuario">
+          </label>
+
+          <label class="form-field">
+            <span>Correo institucional</span>
+            <input type="email" [(ngModel)]="editForm.correo" placeholder="correo@ipn.mx">
+          </label>
+
+          @if (userData().tipo_usuario === 'ALUMNO') {
+            <label class="form-field">
+              <span>Boleta</span>
+              <input type="text" [(ngModel)]="editForm.boleta" placeholder="Boleta">
+            </label>
+            <label class="form-field">
+              <span>Carrera</span>
+              <input type="text" [(ngModel)]="editForm.carrera" placeholder="Carrera">
+            </label>
+            <label class="form-field">
+              <span>Semestre</span>
+              <input type="number" min="1" [(ngModel)]="editForm.semestre" placeholder="Semestre">
+            </label>
+          }
+
+          @if (userData().tipo_usuario === 'DOCENTE') {
+            <label class="form-field">
+              <span>Grado académico</span>
+              <input type="text" [(ngModel)]="editForm.grado_academico" placeholder="Grado académico">
+            </label>
+            <label class="form-field">
+              <span>Departamento</span>
+              <input type="text" [(ngModel)]="editForm.departamento" placeholder="Departamento">
+            </label>
+          }
+
+          @if (userData().tipo_usuario === 'ADMINISTRATIVO') {
+            <label class="form-field">
+              <span>Área</span>
+              <input type="text" [(ngModel)]="editForm.area" placeholder="Área">
+            </label>
+            <label class="form-field">
+              <span>Puesto</span>
+              <input type="text" [(ngModel)]="editForm.puesto" placeholder="Puesto">
+            </label>
+          }
+        </div>
+      } @else {
+        <div class="profile-details">
+          @for (detail of profileDetails(); track detail.label) {
+            <div class="detail-row">
+              <span class="detail-label">{{ detail.label }}</span>
+              <span
+                class="detail-value"
+                [class.badge-role]="detail.type === 'badge'"
+                [class.text-muted]="detail.type === 'muted'"
+                [class.status-chip]="detail.type === 'status'"
+              >
+                {{ detail.type === 'badge' ? roleLabel(detail.value) : detail.value }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+
+      @if (userSubjects().length > 0) {
+        <div class="profile-divider"></div>
+        <section class="subjects-section">
+          <h3>Materias inscritas</h3>
+          <div class="subjects-list">
+            @for (subject of userSubjects(); track subject.id_grupo_materia || subject.materia) {
+              <div class="subject-card">
+                <strong>{{ subject.materia || 'Materia' }}</strong>
+                <span>{{ subject.grupo || 'Sin grupo' }}</span>
+                <small>{{ subject.docente || 'Docente pendiente' }} · {{ subject.estado || 'INSCRITO' }}</small>
+              </div>
+            }
+          </div>
+        </section>
+      }
     }
   </div>
 </div>
+
+@if (isAdmin()) {
+  <button type="button" class="admin-floating-action" (click)="openUsersPanel()" title="Administrar usuarios">
+    <span class="admin-floating-icon" aria-hidden="true">👥</span>
+    <span>Administrar usuarios</span>
+  </button>
+}
+
+@if (adminPanelOpen()) {
+  <div class="admin-backdrop" (click)="closeUsersPanel()"></div>
+
+  <section class="users-admin-panel" (click)="$event.stopPropagation()">
+    <header class="admin-panel-header">
+      <div>
+        <h2>Gestión de usuarios</h2>
+        <p>Consulta, crea, actualiza, desactiva o elimina usuarios.</p>
+      </div>
+      <button type="button" class="btn-panel-close" (click)="closeUsersPanel()">×</button>
+    </header>
+
+    @if (adminErrorMessage()) {
+      <div class="feedback-alert feedback-error">{{ adminErrorMessage() }}</div>
+    }
+
+    @if (adminSuccessMessage()) {
+      <div class="feedback-alert feedback-success">{{ adminSuccessMessage() }}</div>
+    }
+
+    <div class="admin-toolbar">
+      <label class="search-box">
+        <span>Buscar</span>
+        <input
+          type="search"
+          [ngModel]="userSearch()"
+          (ngModelChange)="userSearch.set($event)"
+          placeholder="Nombre, correo, rol o ID"
+        >
+      </label>
+
+      <button type="button" class="btn-edit-profile" (click)="prepareCreateUser()">
+        + Nuevo usuario
+      </button>
+    </div>
+
+    <div class="users-admin-content">
+      <aside class="users-list-panel">
+        @if (isAdminLoading() && adminUsers().length === 0) {
+          <div class="admin-empty-state">Cargando usuarios...</div>
+        } @else if (filteredAdminUsers().length === 0) {
+          <div class="admin-empty-state">No se encontraron usuarios.</div>
+        } @else {
+          @for (user of filteredAdminUsers(); track trackByUserId($index, user)) {
+            <article
+              class="user-list-item"
+              [class.user-selected]="selectedAdminUser()?.id_usuario === user.id_usuario"
+            >
+              <button type="button" class="user-list-main" (click)="viewAdminUser(user)">
+                <img [src]="user.foto_perfil_url || defaultAvatar" alt="Avatar" class="user-list-avatar">
+                <span>
+                  <strong>{{ user.nombre || 'Usuario sin nombre' }}</strong>
+                  <small>{{ user.correo }}</small>
+                  <em>{{ roleLabel(user.tipo_usuario) }}</em>
+                </span>
+              </button>
+
+              <div class="user-list-actions">
+                <button type="button" (click)="prepareEditUser(user)">Editar</button>
+                <button type="button" class="danger-soft" (click)="deleteAdminUser(user, false)">Desactivar</button>
+              </div>
+            </article>
+          }
+        }
+      </aside>
+
+      <section class="user-detail-panel">
+        @if (adminMode() === 'idle') {
+          <div class="admin-empty-state large">
+            Selecciona un usuario para ver sus datos o crea uno nuevo.
+          </div>
+        }
+
+        @if (adminMode() === 'view' && selectedAdminUser()) {
+          <div class="selected-user-header">
+            <img [src]="selectedAdminUser().foto_perfil_url || defaultAvatar" alt="Avatar" class="selected-user-avatar">
+            <div>
+              <h3>{{ selectedAdminUser().nombre }}</h3>
+              <p>&#64;{{ selectedAdminUser().nombre_usuario }} · {{ roleLabel(selectedAdminUser().tipo_usuario) }}</p>
+            </div>
+          </div>
+
+          <div class="profile-details compact">
+            @for (detail of getAdminUserDetails(selectedAdminUser()); track detail.label) {
+              <div class="detail-row">
+                <span class="detail-label">{{ detail.label }}</span>
+                <span
+                  class="detail-value"
+                  [class.badge-role]="detail.type === 'badge'"
+                  [class.status-chip]="detail.type === 'status'"
+                >
+                  {{ detail.type === 'badge' ? roleLabel(detail.value) : detail.value }}
+                </span>
+              </div>
+            }
+          </div>
+
+          @if (selectedAdminSubjects().length > 0) {
+            <section class="subjects-section compact-subjects">
+              <h3>Materias del alumno</h3>
+              <div class="subjects-list">
+                @for (subject of selectedAdminSubjects(); track subject.id_grupo_materia || subject.materia) {
+                  <div class="subject-card">
+                    <strong>{{ subject.materia || 'Materia' }}</strong>
+                    <span>{{ subject.grupo || 'Sin grupo' }}</span>
+                    <small>{{ subject.docente || 'Docente pendiente' }} · {{ subject.estado || 'INSCRITO' }}</small>
+                  </div>
+                }
+              </div>
+            </section>
+          }
+
+          <div class="admin-detail-actions">
+            <button type="button" class="btn-edit-profile" (click)="prepareEditUser(selectedAdminUser())">Editar usuario</button>
+            <button type="button" class="btn-danger" (click)="deleteAdminUser(selectedAdminUser(), true)">Eliminar definitivo</button>
+          </div>
+        }
+
+        @if (adminMode() === 'create' || adminMode() === 'edit') {
+          <div class="admin-form-header">
+            <h3>{{ adminMode() === 'create' ? 'Crear usuario' : 'Editar usuario' }}</h3>
+            <p>Los campos adicionales se ajustan al rol seleccionado.</p>
+          </div>
+
+          <div class="admin-user-form">
+            <label class="form-field">
+              <span>Nombre completo</span>
+              <input type="text" [(ngModel)]="adminForm.nombre" placeholder="Nombre completo">
+            </label>
+
+            <label class="form-field">
+              <span>Nombre de usuario</span>
+              <input type="text" [(ngModel)]="adminForm.nombre_usuario" placeholder="usuario">
+            </label>
+
+            <label class="form-field">
+              <span>Correo</span>
+              <input type="email" [(ngModel)]="adminForm.correo" placeholder="correo@ipn.mx">
+            </label>
+
+            <label class="form-field">
+              <span>Rol</span>
+              <select [(ngModel)]="adminForm.tipo_usuario">
+                <option value="ALUMNO">Alumno</option>
+                <option value="DOCENTE">Docente</option>
+                <option value="ADMINISTRATIVO">Administrativo</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>{{ adminMode() === 'create' ? 'Contraseña' : 'Nueva contraseña' }}</span>
+              <input type="password" [(ngModel)]="adminForm.password" [placeholder]="adminMode() === 'create' ? 'Obligatoria' : 'Opcional'">
+            </label>
+
+            <div class="toggle-row">
+              <label>
+                <input type="checkbox" [(ngModel)]="adminForm.activo">
+                Usuario activo
+              </label>
+              <label>
+                <input type="checkbox" [(ngModel)]="adminForm.verificado">
+                Cuenta verificada
+              </label>
+            </div>
+
+            @if (adminForm.tipo_usuario === 'ALUMNO') {
+              <label class="form-field">
+                <span>Boleta</span>
+                <input type="text" [(ngModel)]="adminForm.boleta" placeholder="Boleta">
+              </label>
+              <label class="form-field">
+                <span>Carrera</span>
+                <input type="text" [(ngModel)]="adminForm.carrera" placeholder="Carrera">
+              </label>
+              <label class="form-field">
+                <span>Semestre</span>
+                <input type="number" min="1" [(ngModel)]="adminForm.semestre" placeholder="Semestre">
+              </label>
+            }
+
+            @if (adminForm.tipo_usuario === 'DOCENTE') {
+              <label class="form-field">
+                <span>Grado académico</span>
+                <input type="text" [(ngModel)]="adminForm.grado_academico" placeholder="Doctorado, Maestría...">
+              </label>
+              <label class="form-field">
+                <span>Departamento</span>
+                <input type="text" [(ngModel)]="adminForm.departamento" placeholder="Departamento">
+              </label>
+            }
+
+            @if (adminForm.tipo_usuario === 'ADMINISTRATIVO') {
+              <label class="form-field">
+                <span>Área</span>
+                <input type="text" [(ngModel)]="adminForm.area" placeholder="Área">
+              </label>
+              <label class="form-field">
+                <span>Puesto</span>
+                <input type="text" [(ngModel)]="adminForm.puesto" placeholder="Puesto">
+              </label>
+            }
+          </div>
+
+          <div class="admin-detail-actions">
+            <button type="button" class="btn-edit-profile" [disabled]="isAdminSaving()" (click)="saveAdminUser()">
+              {{ isAdminSaving() ? 'Guardando...' : 'Guardar usuario' }}
+            </button>
+            <button type="button" class="btn-secondary-action" (click)="adminMode.set(selectedAdminUser() ? 'view' : 'idle')">
+              Cancelar
+            </button>
+          </div>
+        }
+      </section>
+    </div>
+  </section>
+}

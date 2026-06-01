@@ -2,32 +2,12 @@
 
 .notifications-page-container {
   width: 100%;
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 0 20px;
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 0 20px 96px;
   font-family: 'Roboto', sans-serif;
 }
 
-/* Flecha de regreso */
-.btn-back {
-  background: none;
-  border: none;
-  color: #217ba0;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: transform 0.2s ease;
-  padding: 0;
-}
-
-.btn-back:hover {
-  transform: translateX(-5px);
-  color: #1a6282;
-}
-
-/* Panel del Carrusel */
 .carousel-wrapper {
   background: #ffffff;
   border-radius: 20px;
@@ -36,22 +16,55 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.panel-title {
-  font-size: 1.4rem;
+.notifications-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.count-badge,
+.unread-counter {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #2c3e50;
 }
 
 .count-badge {
   background-color: #e3f2fd;
   color: #217ba0;
-  padding: 5px 14px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
 }
 
-/* Estructura Interna del Carrusel */
+.unread-counter {
+  background-color: #fff3f3;
+  color: #b42318;
+}
+
+.notification-alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #ffd4d4;
+  border-radius: 14px;
+  background: #fff3f3;
+  color: #a32626;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.notification-alert button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
 .carousel-container-inner {
   display: flex;
   align-items: center;
@@ -60,7 +73,6 @@
   margin-bottom: 25px;
 }
 
-/* Flechas de Navegación */
 .carousel-arrow {
   background-color: #ffffff;
   border: 1px solid #eaeded;
@@ -86,8 +98,6 @@
   transform: scale(1.05);
 }
 
-/* Tarjeta de la Notificación */
-/* Reemplaza la clase de tu tarjeta con esto para mantener transiciones fluidas */
 .notification-carousel-card {
   flex-grow: 1;
   background-color: #f8f9fa;
@@ -96,24 +106,27 @@
   padding: 30px;
   cursor: pointer;
   position: relative;
-  min-height: 180px;
+  min-height: 190px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
-
-  /* Transición suave al cambiar los datos del texto */
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-/* Variación si no está leída (Estilo Alumno) */
+.notification-carousel-card:hover,
+.notification-carousel-card:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
+  box-shadow: 0 10px 24px rgba(33, 123, 160, 0.08);
+}
+
 .notification-carousel-card.unread {
   background-color: #f4fafd;
   border: 1px solid #e1f5fe;
   box-shadow: 0 4px 15px rgba(33, 123, 160, 0.05);
 }
 
-/* Badges y Tags Internos */
 .unread-badge {
   position: absolute;
   top: -10px;
@@ -146,17 +159,16 @@
 }
 
 .notif-title {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #2c3e50;
-  margin: 12px 0 6px 0;
+  margin: 12px 0 8px 0;
 }
 
-.notif-desc {
-  margin: 0 0 15px 0;
-  font-size: 0.95rem;
-  color: #555555;
-  line-height: 1.5;
+.notif-preview {
+  margin: 0 0 14px 0;
+  color: #6f7f88;
+  font-size: 0.94rem;
 }
 
 .click-tip {
@@ -166,7 +178,6 @@
   font-style: italic;
 }
 
-/* Indicadores de Puntos (Dots) */
 .carousel-dots {
   display: flex;
   justify-content: center;
@@ -185,37 +196,210 @@
 }
 
 .dot-btn.active {
-  width: 28px; /* El punto se alarga elegantemente al estar activo */
+  width: 28px;
   border-radius: 5px;
   background-color: #217ba0;
 }
 
-/* Pequeño indicador si esa tarjeta de punto oculto no está leída aún */
 .dot-btn.dot-unread:not(.active) {
   background-color: #a9d4e7;
   border: 1px solid #217ba0;
 }
 
-/* Animación de entrada de tarjeta */
-@keyframes cardScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
+.empty-notifications {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #217ba0;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+.notification-floating-actions {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 900;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.btn-floating-primary,
+.btn-floating-secondary {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+.btn-floating-primary {
+  background: #217ba0;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(33, 123, 160, 0.3);
+}
+
+.btn-floating-secondary {
+  background: #ffffff;
+  color: #217ba0;
+  border: 1px solid #cfe2ea;
+  box-shadow: 0 8px 20px rgba(31, 41, 55, 0.08);
+}
+
+.btn-floating-primary:hover:not(:disabled),
+.btn-floating-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn-floating-primary:hover:not(:disabled) {
+  background: #1a6282;
+}
+
+.btn-floating-primary:disabled,
+.btn-floating-secondary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.notification-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(3px);
+}
+
+.notification-modal {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 26px;
+  border: 1px solid #dcebf1;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.notification-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.notification-modal-header h2 {
+  margin: 6px 0 0;
+  color: #2c3e50;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.modal-close-button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #d9e8ee;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #176382;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  transform: rotate(90deg);
+  background: #eaf5f9;
+}
+
+.notification-detail-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f6fbfd;
+  color: #657580;
+  font-size: 0.9rem;
+}
+
+.notification-detail-meta strong {
+  color: #217ba0;
+}
+
+.notification-detail-description {
+  margin: 18px 0;
+  color: #344b58;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.notification-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
   }
-  to {
+  50% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1.08);
   }
 }
 
-/* Responsivo rápido */
 @media (max-width: 576px) {
+  .notifications-page-container {
+    margin: 18px auto;
+    padding-inline: 12px;
+  }
+
+  .carousel-wrapper {
+    padding: 24px 16px;
+  }
+
+  .carousel-container-inner {
+    gap: 10px;
+  }
+
   .carousel-arrow {
     width: 38px;
     height: 38px;
     font-size: 1.5rem;
   }
+
   .notification-carousel-card {
-    padding: 20px;
+    padding: 22px;
+  }
+
+  .notification-floating-actions {
+    left: 14px;
+    right: 14px;
+    bottom: 16px;
+  }
+
+  .btn-floating-primary,
+  .btn-floating-secondary {
+    flex: 1;
+    padding: 11px 12px;
   }
 }

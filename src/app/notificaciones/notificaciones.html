@@ -1,30 +1,39 @@
 <div class="notifications-page-container">
-
-  <div class="back-navigation">
-    <button type="button" class="btn-back" (click)="regresar()" title="Regresar">
-      ← Volver
-    </button>
-  </div>
-
   <div class="carousel-wrapper">
-    <div class="notifications-header d-flex justify-content-between align-items-center mb-4">
-      <h2 class="panel-title m-0">Mis Notificaciones</h2>
+    <div class="notifications-header">
       <span class="count-badge">
         {{ listadoNotificaciones().length > 0 ? currentIndex() + 1 : 0 }} de {{ listadoNotificaciones().length }}
       </span>
+      @if (unreadCount() > 0) {
+        <span class="unread-counter">{{ unreadCount() }} sin leer</span>
+      }
     </div>
 
-    @if (listadoNotificaciones().length > 0) {
-      <div class="carousel-container-inner">
+    @if (errorMessage()) {
+      <div class="notification-alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="errorMessage.set('')" aria-label="Cerrar error">×</button>
+      </div>
+    }
 
+    @if (isLoading()) {
+      <div class="empty-notifications text-center p-5">
+        <div class="loading-dot"></div>
+        <p class="text-muted">Cargando notificaciones...</p>
+      </div>
+    } @else if (listadoNotificaciones().length > 0) {
+      <div class="carousel-container-inner">
         <button type="button" class="carousel-arrow left-arrow" (click)="prevSlide()" title="Anterior">
           ‹
         </button>
 
-        <div class="notification-carousel-card"
-             [class.unread]="currentNotification()?.leida === false"
-             (click)="marcarComoLeidaActual()">
-
+        <article
+          class="notification-carousel-card"
+          [class.unread]="currentNotification()?.leida === false"
+          tabindex="0"
+          (click)="marcarComoLeidaActual()"
+          (keydown.enter)="marcarComoLeidaActual()"
+        >
           @if (!currentNotification()?.leida) {
             <span class="unread-badge">Nuevo</span>
           }
@@ -35,12 +44,12 @@
           </div>
 
           <h3 class="notif-title">{{ currentNotification()?.titulo }}</h3>
-          <p class="notif-desc">{{ currentNotification()?.descripcion }}</p>
+          <p class="notif-preview">Haz clic para ver la descripción completa.</p>
 
           @if (!currentNotification()?.leida) {
-            <span class="click-tip">Haz clic en la tarjeta para marcarla como leída</span>
+            <span class="click-tip">También se marcará como leída</span>
           }
-        </div>
+        </article>
 
         <button type="button" class="carousel-arrow right-arrow" (click)="nextSlide()" title="Siguiente">
           ›
@@ -49,20 +58,63 @@
 
       <div class="carousel-dots">
         @for (notif of listadoNotificaciones(); track notif.id; let i = $index) {
-          <button type="button"
-                  class="dot-btn"
-                  [class.active]="i === currentIndex()"
-                  [class.dot-unread]="!notif.leida"
-                  (click)="goToSlide(i)"
-                  [title]="'Ir a notificación ' + (i + 1)">
-          </button>
+          <button
+            type="button"
+            class="dot-btn"
+            [class.active]="i === currentIndex()"
+            [class.dot-unread]="!notif.leida"
+            (click)="goToSlide(i)"
+            [title]="'Ir a notificación ' + (i + 1)"
+          ></button>
         }
       </div>
-
     } @else {
       <div class="empty-notifications text-center p-5">
         <p class="text-muted">¡Estás al día! No tienes notificaciones pendientes.</p>
       </div>
     }
   </div>
+
+  <div class="notification-floating-actions">
+    <button type="button" class="btn-floating-secondary" (click)="regresar()">
+      ← Volver
+    </button>
+    <button type="button" class="btn-floating-primary" [disabled]="isUpdating()" (click)="cargarNotificaciones()">
+      Actualizar
+    </button>
+    @if (unreadCount() > 0) {
+      <button type="button" class="btn-floating-primary" [disabled]="isUpdating()" (click)="marcarTodasComoLeidas()">
+        Marcar leídas
+      </button>
+    }
+  </div>
 </div>
+
+@if (selectedNotification(); as notification) {
+  <div class="notification-modal-backdrop" (click)="closeNotificationDetail()">
+    <section class="notification-modal" (click)="$event.stopPropagation()" aria-labelledby="notification-detail-title">
+      <header class="notification-modal-header">
+        <div>
+          <span class="notif-type-tag">{{ notification.tipo }}</span>
+          <h2 id="notification-detail-title">{{ notification.titulo }}</h2>
+        </div>
+        <button type="button" class="modal-close-button" (click)="closeNotificationDetail()" aria-label="Cerrar detalle">
+          ×
+        </button>
+      </header>
+
+      <div class="notification-detail-meta">
+        <span>{{ formatDate(notification.fecha) }}</span>
+        <strong>{{ notification.leida ? 'Leída' : 'Sin leer' }}</strong>
+      </div>
+
+      <p class="notification-detail-description">{{ notification.descripcion }}</p>
+
+      <div class="notification-modal-actions">
+        <button type="button" class="btn-floating-primary" (click)="closeNotificationDetail()">
+          Cerrar
+        </button>
+      </div>
+    </section>
+  </div>
+}

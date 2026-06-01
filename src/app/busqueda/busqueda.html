@@ -1,53 +1,268 @@
-<div class="titulo">
-  <h2>BÚSQUEDA</h2>
-</div>
-
 <div class="contenedor">
-
   <div class="barra-busqueda">
     <input
       type="text"
-      placeholder="Consulta información sobre la institución"
+      [value]="terminoBusqueda()"
+      (input)="actualizarBusqueda($event)"
+      (keydown.enter)="recargarNoticias()"
+      placeholder="Busca por título, descripción, etiquetas, carrera, grupo o prioridad"
+      aria-label="Buscar noticias"
     />
 
-    <span class="icono">✕</span>
-    <span class="icono">🔍</span>
+    @if (terminoBusqueda()) {
+      <button
+        type="button"
+        class="icono icono-boton"
+        (click)="limpiarBusqueda()"
+        aria-label="Limpiar búsqueda"
+      >
+        ✕
+      </button>
+    }
+
+    <button
+      type="button"
+      class="icono icono-boton"
+      (click)="recargarNoticias()"
+      aria-label="Buscar o recargar noticias"
+    >
+      🔍
+    </button>
   </div>
 
-  <div class="filtros">
-    <button
-      [class.activo]="filtroSeleccionado === 'todo'"
-      (click)="seleccionarFiltro('todo')">
-      Todo
-    </button>
-
-    <button
-      [class.activo]="filtroSeleccionado === 'academica'"
-      (click)="seleccionarFiltro('academica')">
-      Información académica
-    </button>
-
-    <button
-      [class.activo]="filtroSeleccionado === 'tramites'"
-      (click)="seleccionarFiltro('tramites')">
-      Trámites
-    </button>
-
-    <button
-      [class.activo]="filtroSeleccionado === 'anuncios'"
-      (click)="seleccionarFiltro('anuncios')">
-      Anuncios
-    </button>
-
-    <button
-      [class.activo]="filtroSeleccionado === 'eventos'"
-      (click)="seleccionarFiltro('eventos')">
-      Eventos
-    </button>
+  <div class="filtros" role="tablist" aria-label="Filtros de noticias">
+    @for (filtro of filtros; track filtro.value) {
+      <button
+        type="button"
+        [class.activo]="filtroSeleccionado() === filtro.value"
+        (click)="seleccionarFiltro(filtro.value)"
+      >
+        {{ filtro.label }}
+      </button>
+    }
   </div>
 
   <div class="resultados">
+    @if (cargando()) {
+      <div class="estado-resultados">
+        <div class="loading-dot"></div>
+        <h3>Cargando noticias...</h3>
+        <p>Estamos buscando la información disponible para tu perfil.</p>
+      </div>
+    } @else if (errorBusqueda()) {
+      <div class="estado-resultados warning">
+        <h3>No se pudieron cargar las noticias</h3>
+        <p>{{ errorBusqueda() }}</p>
+        <button type="button" class="secondary-action" (click)="recargarNoticias()">
+          Intentar de nuevo
+        </button>
+      </div>
+    } @else {
+      <header class="resultados-header">
+        <div>
+          <span class="resultados-kicker">Resultados</span>
+          <h3>{{ resultadosFiltrados().length }} noticia(s) encontrada(s)</h3>
+        </div>
 
+      </header>
+
+      @if (resultadosFiltrados().length > 0) {
+        <div class="lista-resultados">
+          @for (notice of resultadosFiltrados(); track notice.id_anuncio || $index) {
+            <article
+              class="resultado-card"
+              [ngClass]="getPriorityClass(notice.prioridad)"
+              tabindex="0"
+              (click)="openNoticeDetail(notice)"
+              (keydown.enter)="openNoticeDetail(notice)"
+            >
+              <div class="resultado-main">
+                @if (getNoticeImages(notice).length > 0) {
+                  <div class="resultado-image">
+                    <img
+                      [src]="getNoticeImages(notice)[0].url"
+                      [alt]="getNoticeImages(notice)[0].nombre_original || 'Imagen del aviso'"
+                    />
+                  </div>
+                }
+
+                <div class="resultado-content">
+                  <div class="resultado-meta">
+                    <span class="priority-badge">{{ getPriorityText(notice.prioridad) }}</span>
+                    <span class="category-badge">{{ getCategoryText(notice.categoria) }}</span>
+                    <span class="news-date">{{ formatDate(notice.fecha) || 'Sin fecha' }}</span>
+                  </div>
+
+                  <h3>{{ getNoticeTitle(notice) }}</h3>
+                  <p>{{ getNoticeDescription(notice) }}</p>
+
+                  @if (getVisibleTags(notice).length > 0) {
+                    <div class="resultado-tags">
+                      @for (tag of getVisibleTags(notice); track tag) {
+                        <span>{{ tag }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="resultado-footer">
+                <span>
+                  {{ notice.emisor || notice.autor || (notice.id_emisor ? 'Usuario #' + notice.id_emisor : 'ESCOMETA') }}
+                </span>
+                <button
+                  type="button"
+                  class="detail-link-button"
+                  (click)="$event.stopPropagation(); openNoticeDetail(notice)"
+                >
+                  Ver detalles
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="estado-resultados empty">
+          <div class="empty-icon">i</div>
+          <h3>No encontramos coincidencias</h3>
+          <p>Prueba con otro tópico, categoría, etiqueta, carrera, grupo o prioridad.</p>
+          <button type="button" class="primary-action" (click)="limpiarFiltros()">
+            Ver todas las noticias
+          </button>
+        </div>
+      }
+    }
   </div>
-
+  @if (hayFiltrosActivos()) {
+    <button type="button" class="clear-filters busqueda-floating-action" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </button>
+  }
 </div>
+
+@if (selectedNotice(); as notice) {
+  <div class="post-modal-backdrop detail-modal-backdrop" (click)="closeNoticeDetail()">
+    <section
+      class="post-modal news-detail-modal"
+      aria-labelledby="notice-detail-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="post-modal-header">
+        <div>
+          <p class="news-kicker">Detalle de aviso</p>
+          <h2 id="notice-detail-title">{{ getNoticeTitle(notice) }}</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-button"
+          (click)="closeNoticeDetail()"
+          aria-label="Cerrar detalle"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="news-detail-content">
+        @if (isDetailLoading(notice)) {
+          <div class="detail-loading-note">
+            <div class="loading-dot small"></div>
+            Sincronizando detalle completo...
+          </div>
+        }
+
+        @if (getNoticeImages(notice).length > 0) {
+          <div class="news-detail-images">
+            @for (image of getNoticeImages(notice); track image.url) {
+              <figure>
+                <img [src]="image.url" [alt]="image.nombre_original || 'Imagen del aviso'" />
+                @if (image.nombre_original) {
+                  <figcaption>{{ image.nombre_original }}</figcaption>
+                }
+              </figure>
+            }
+          </div>
+        }
+
+        <p class="news-detail-text">{{ getNoticeDescription(notice) }}</p>
+
+        <div class="news-detail-tags">
+          @for (tag of getNoticeTags(notice); track tag) {
+            <span>{{ tag }}</span>
+          }
+        </div>
+
+        <div class="news-detail-meta-grid">
+          <div>
+            <span>Fecha</span>
+            <strong>{{ formatDate(notice.fecha) || 'Sin fecha' }}</strong>
+          </div>
+          <div>
+            <span>Emisor</span>
+            <strong>
+              {{ notice.emisor || notice.autor || (notice.id_emisor ? 'Usuario #' + notice.id_emisor : 'Sin emisor') }}
+            </strong>
+          </div>
+          <div>
+            <span>Categoría</span>
+            <strong>{{ getCategoryText(notice.categoria) }}</strong>
+          </div>
+          <div>
+            <span>Nivel de urgencia</span>
+            <strong>{{ getPriorityText(notice.prioridad) }}</strong>
+          </div>
+          <div>
+            <span>Visible desde</span>
+            <strong>{{ formatDate(notice.visible_desde) || 'Inmediato' }}</strong>
+          </div>
+          <div>
+            <span>Visible hasta</span>
+            <strong>{{ formatDate(notice.visible_hasta) || 'Sin vencimiento' }}</strong>
+          </div>
+        </div>
+
+        @if (getNoticeTargets(notice).length > 0) {
+          <div class="news-detail-section">
+            <h3>Destino / características</h3>
+            <div class="target-list">
+              @for (target of getNoticeTargets(notice); track $index) {
+                <div class="target-card">
+                  @if (target.tipo_usuario) {
+                    <span>Rol: <strong>{{ target.tipo_usuario }}</strong></span>
+                  }
+                  @if (target.carrera) {
+                    <span>Carrera: <strong>{{ target.carrera }}</strong></span>
+                  }
+                  @if (target.semestre) {
+                    <span>Semestre: <strong>{{ target.semestre }}</strong></span>
+                  }
+                  @if (target.grupo) {
+                    <span>Grupo: <strong>{{ target.grupo }}</strong></span>
+                  }
+                  @if (target.id_grupo && !target.grupo) {
+                    <span>ID grupo: <strong>{{ target.id_grupo }}</strong></span>
+                  }
+                  @if (target.id_grupo_materia) {
+                    <span>ID materia-grupo: <strong>{{ target.id_grupo_materia }}</strong></span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (getNoticeRecipients(notice).length > 0) {
+          <div class="news-detail-section">
+            <h3>Destinatarios directos</h3>
+            <p class="recipient-list">{{ getNoticeRecipients(notice).join(', ') }}</p>
+          </div>
+        }
+
+        <div class="post-modal-actions">
+          <button type="button" class="primary-action" (click)="closeNoticeDetail()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+}
