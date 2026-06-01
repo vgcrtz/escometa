@@ -23,6 +23,7 @@
         <a href="/mensajeria" class="nav-link text-white fw-bold me-4">MENSAJERIA</a>
         <a href="/horario" class="nav-link text-white fw-bold me-4">HORARIO</a>
         <a href="/busqueda" class="nav-link text-white fw-bold me-4">BÚSQUEDA</a>
+        <a href="/chatbot" class="nav-link text-white fw-bold me-4">ASISTENTE</a>
 
         @if (userRol() === 'DOCENTE') {
           <a href="/asistencia" class="nav-link text-white fw-bold me-4">ASISTENCIA</a>
@@ -30,7 +31,7 @@
       }
 
       @if (isLoggedIn()) {
-        <a href="/faq" class="faq-btn text-white fw-bold ms-3" title="Preguntas Frecuentes">?</a>
+        <a href="/chatbot" class="faq-btn text-white fw-bold ms-3" title="Asistente ESCOMETA">?</a>
       }
     </nav>
   </div>

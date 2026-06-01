@@ -1,0 +1,93 @@
+<section class="chatbot-page">
+  <div class="chatbot-header">
+    <div class="assistant-intro">
+      <div class="assistant-avatar-wrap">
+        <img
+          class="assistant-avatar"
+          [src]="asistenteAvatar"
+          alt="Asistente virtual de ESCOMETA"
+        >
+      </div>
+
+      <div>
+        <p class="eyebrow">Asistente virtual</p>
+        <h1>ESCOM-BRO</h1>
+        <p class="subtitle">Pregunta sobre el sistema, anuncios, horarios, asistencia y procesos escolares.</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <label class="internet-toggle">
+        <input type="checkbox" [checked]="usarInternet()" (change)="toggleInternet($event)">
+        Buscar en internet oficial
+      </label>
+      <button type="button" class="clear-btn" (click)="limpiar()">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="examples">
+    @for (ejemplo of ejemplos; track ejemplo) {
+      <button type="button" (click)="usarEjemplo(ejemplo)" [disabled]="cargando()">{{ ejemplo }}</button>
+    }
+  </div>
+
+  <div class="chat-window" aria-live="polite">
+    @for (mensaje of mensajes(); track $index) {
+      <article class="message" [class.user]="mensaje.role === 'user'" [class.assistant]="mensaje.role === 'assistant'" [class.error]="mensaje.error">
+        <div class="bubble">
+          @if (mensaje.role === 'assistant') {
+            <div class="role-label assistant-role-label">
+              <img [src]="asistenteAvatar" alt="" aria-hidden="true">
+              <span>ESCOM-BRO</span>
+            </div>
+          } @else {
+            <div class="role-label">Tú</div>
+          }
+          @if (mensaje.role === 'assistant') {
+            <markdown class="markdown-message" [data]="mensaje.content"></markdown>
+          } @else {
+            <p>{{ mensaje.content }}</p>
+          }
+
+          @if (mensaje.fuentes && mensaje.fuentes.length > 0) {
+            <div class="sources">
+              <span>Fuentes:</span>
+              @for (fuente of mensaje.fuentes; track fuente.url || $index) {
+                @if (fuente.url) {
+                  <a [href]="fuente.url" target="_blank" rel="noopener noreferrer">
+                    {{ fuente.titulo || fuente.url }}
+                  </a>
+                }
+              }
+            </div>
+          }
+        </div>
+      </article>
+    }
+
+    @if (cargando()) {
+      <article class="message assistant loading">
+        <div class="bubble">
+          <div class="role-label assistant-role-label">
+            <img [src]="asistenteCarga" alt="" aria-hidden="true">
+            <span>ESCOM-BRO</span>
+          </div>
+          <p>Buscando información y redactando respuesta...</p>
+        </div>
+      </article>
+    }
+  </div>
+
+  <form class="composer" (ngSubmit)="enviar()">
+    <textarea
+      name="pregunta"
+      [ngModel]="pregunta()"
+      (ngModelChange)="pregunta.set($event)"
+      placeholder="Escribe tu pregunta..."
+      rows="1"
+      maxlength="2000"
+      [disabled]="cargando()"
+    ></textarea>
+    <button type="submit" [disabled]="!pregunta().trim() || cargando()">Enviar</button>
+  </form>
+</section>

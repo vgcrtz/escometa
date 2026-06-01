@@ -9,6 +9,7 @@ import {Asistencia} from './asistencia/asistencia';
 import {Inicio} from './inicio/inicio';
 import {Perfil} from './perfil/perfil';
 import {Notificaciones} from './notificaciones/notificaciones';
+import { Chatbot } from './chatbot/chatbot';
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
 
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'inicio', component: Inicio, canActivate: [authGuard] },
   { path: 'perfil', component: Perfil, canActivate: [authGuard] },
   { path: 'notificaciones', component: Notificaciones, canActivate: [authGuard] },
+  { path: 'chatbot', component: Chatbot, canActivate: [authGuard] },
   { path: '', redirectTo: '/iniciar-sesion', pathMatch: 'full' },
   { path: '**', redirectTo: '/iniciar-sesion' },
 ];

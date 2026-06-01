@@ -16,9 +16,9 @@ export class Auth {
     return this.http.get(`${this.baseURL}/auth/me`, { withCredentials: true }).pipe(
       tap((respuesta: any) => {
         console.log('Respuesta de verificación de sesión:', respuesta);
-        if (respuesta.authenticated === true || respuesta.data.tipo_usuario === 'INVITADO') {
+        if (respuesta?.authenticated === true) {
           this.isLoggedIn.set(true);
-          this.userRol.set(respuesta.data.tipo_usuario);
+          this.userRol.set(respuesta.data?.tipo_usuario ?? null);
         } else {
           this.isLoggedIn.set(false);
           this.userRol.set(null);

@@ -3,23 +3,22 @@ import { inject } from '@angular/core';
 import { Auth } from '../services/auth';
 import { map } from 'rxjs';
 
-export const guestGuard: CanActivateFn = (route, state) => {
+export const guestGuard: CanActivateFn = () => {
   const authService = inject(Auth);
   const router = inject(Router);
 
-  if (authService.isLoggedIn()){
+  if (authService.isLoggedIn()) {
     router.navigate(['/inicio']);
     return false;
   }
 
   return authService.verificarSesion().pipe(
-    map(respuesta => {
-      if (respuesta){
+    map((respuesta) => {
+      if (respuesta?.authenticated === true) {
         router.navigate(['/inicio']);
         return false;
-      } else
-        return true;
       }
-    )
-  )
+      return true;
+    }),
+  );
 };

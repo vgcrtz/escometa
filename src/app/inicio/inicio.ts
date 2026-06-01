@@ -39,6 +39,13 @@ export class Inicio {
       rolesPermitidos: ['ALUMNO', 'DOCENTE', 'ADMIN', 'ADMINISTRATIVO'],
     },
     {
+      titulo: 'Asistente',
+      icono: 'chat.png',
+      colorClase: 'bg-medium-blue',
+      link: '/chatbot',
+      rolesPermitidos: ['INVITADO', 'ALUMNO', 'DOCENTE', 'ADMIN', 'ADMINISTRATIVO'],
+    },
+    {
       titulo: 'Investigar',
       icono: 'loupe.png',
       colorClase: 'bg-medium-blue',
