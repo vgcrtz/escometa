@@ -9,11 +9,6 @@
       <p class="toast-body">{{ toastMessage() }}</p>
 
       <div class="toast-actions">
-        @if (showResendVerification()) {
-          <button type="button" class="btn-outline-danger" (click)="onResendVerification()">
-            Reenviar verificación
-          </button>
-        }
         @if (showSupportLink()) {
           <a href="/soporte" class="support-link">Contactar a soporte</a>
         }
@@ -22,16 +17,13 @@
   </div>
 }
 
-<div class="background-container" style="background-image: url('Background_IMG.jpg');">
-
+<div class="background-container" [class.login-page-blurred]="showVerificationBox()" style="background-image: url('Background_IMG.jpg');">
   <div class="login-card">
-
     <div class="left-column">
       <h2 class="section-title">INICIA SESIÓN</h2>
       <div class="divider"></div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-
         <div class="form-group row">
           <label for="email">Correo electrónico:</label>
           <input type="email" id="email" formControlName="correo">
@@ -57,6 +49,7 @@
           <p class="register-text">¿No tienes cuenta? <a href="/registro">Regístrate</a>.</p>
         </div>
       </form>
+
     </div>
 
     <div class="right-column">
@@ -73,3 +66,54 @@
     </div>
   </div>
 </div>
+
+@if (showVerificationBox()) {
+  <div class="verification-overlay" role="dialog" aria-modal="true" aria-labelledby="verification-title-login" (click)="hideVerificationBox()">
+    <section class="verification-box" (click)="$event.stopPropagation()">
+      <div class="verification-header">
+        <h3 id="verification-title-login">Verifica tu correo</h3>
+        <button type="button" class="verification-close" aria-label="Cerrar verificación" (click)="hideVerificationBox()">&times;</button>
+      </div>
+
+      <p class="verification-description">
+        Ingresa el código enviado a <strong>{{ verificationEmail() }}</strong> para activar tu cuenta.
+      </p>
+
+      @if (verificationMessage()) {
+        <p class="verification-status success">{{ verificationMessage() }}</p>
+      }
+
+      @if (verificationError()) {
+        <p class="verification-status error">{{ verificationError() }}</p>
+      }
+
+      <div class="verification-field">
+        <label for="verification-code-login">Código de verificación:</label>
+        <input
+          id="verification-code-login"
+          type="text"
+          inputmode="numeric"
+          maxlength="10"
+          [formControl]="verificationCode"
+          placeholder="Ej. 123456"
+        >
+      </div>
+
+      <button
+        type="button"
+        class="btn-primary verification-submit"
+        [disabled]="verificationCode.invalid || isVerifying()"
+        (click)="onVerifyEmail()"
+      >
+        {{ isVerifying() ? 'Verificando...' : 'Verificar cuenta' }}
+      </button>
+
+      <p class="resend-text">
+        ¿No recibiste el código?
+        <button type="button" class="resend-link" [disabled]="isResending()" (click)="onResendVerification()">
+          {{ isResending() ? 'Reenviando...' : 'Volver a enviar' }}
+        </button>
+      </p>
+    </section>
+  </div>
+}

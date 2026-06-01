@@ -1,7 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import {FormGroup, FormBuilder, Validators, ReactiveFormsModule} from '@angular/forms';
-import { Auth } from '../services/auth';
+import { HttpClient } from '@angular/common/http';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Auth } from '../services/auth';
+import { variables_globales } from '../variables-globales';
 
 @Component({
   selector: 'app-login',
@@ -11,13 +13,23 @@ import { Router } from '@angular/router';
 })
 export class Login implements OnInit {
   public loginForm!: FormGroup;
+  public verificationCode = new FormControl('', [Validators.required, Validators.minLength(4)]);
 
   public toastMessage = signal<string | null>(null);
   public showResendVerification = signal<boolean>(false);
   public showSupportLink = signal<boolean>(false);
 
+  public showVerificationBox = signal<boolean>(false);
+  public verificationEmail = signal<string>('');
+  public verificationMessage = signal<string | null>(null);
+  public verificationError = signal<string | null>(null);
+  public isVerifying = signal<boolean>(false);
+  public isResending = signal<boolean>(false);
+
   private authService = inject(Auth);
   private router = inject(Router);
+  private http = inject(HttpClient);
+  private apiUrl = variables_globales.server_url.replace(/\/$/, '');
 
   constructor(private fb: FormBuilder) {}
 
@@ -30,41 +42,42 @@ export class Login implements OnInit {
   }
 
   onLogin(): void {
-    if (this.loginForm.valid) {
-      this.closeToast(); // Limpiar cualquier mensaje previo
+    if (this.loginForm.invalid) return;
 
-      const parametros = this.loginForm.value;
+    this.closeToast();
+    this.hideVerificationBox();
 
-      this.authService.enviarLoginPost(parametros).subscribe({
-        next: (respuesta) => {
-          this.authService.isLoggedIn.set(true);
-          this.authService.userRol.set(respuesta.data.rol);
+    const parametros = this.loginForm.value;
 
-          if (respuesta.status === 'success') {
-            this.router.navigate(['/inicio']);
-          }
-        },
-        error: (err) => {
-          const detail = err.error?.detail || err.detail;
+    this.authService.enviarLoginPost(parametros).subscribe({
+      next: (respuesta) => {
+        this.authService.isLoggedIn.set(true);
+        this.authService.userRol.set(respuesta.data?.rol || respuesta.data?.tipo_usuario);
 
-          if (detail === 'Credenciales inválidas') {
-            this.triggerToast('Correo electrónico o contraseña incorrectos.');
-          } else if (detail === 'Usuario desactivado') {
-            this.showSupportLink.set(true);
-            this.triggerToast('Tu cuenta ha sido desactivada.');
-          } else if (
-            detail === 'Cuenta no verificada. Verifica tu correo antes de iniciar sesión'
-          ) {
-            this.showResendVerification.set(true);
-            this.triggerToast('Debes verificar tu correo para ingresar.');
-          } else {
-            this.triggerToast('Ocurrió un error inesperado. Inténtalo más tarde.');
-          }
-
-          console.error('Error de login:', err);
+        if (respuesta.status === 'success') {
+          this.router.navigate(['/inicio']);
         }
-      });
-    }
+      },
+      error: (err) => {
+        const detail = this.getErrorDetail(err);
+
+        if (detail === 'Credenciales inválidas') {
+          this.triggerToast('Correo electrónico o contraseña incorrectos.');
+        } else if (detail === 'Usuario desactivado') {
+          this.showSupportLink.set(true);
+          this.triggerToast('Tu cuenta ha sido desactivada.');
+        } else if (detail === 'Cuenta no verificada. Verifica tu correo antes de iniciar sesión') {
+          this.openVerificationBox(
+            this.loginForm.get('correo')?.value,
+            'Tu cuenta aún no está verificada. Ingresa el código que se envió a tu correo.',
+          );
+        } else {
+          this.triggerToast('Ocurrió un error inesperado. Inténtalo más tarde.');
+        }
+
+        console.error('Error de login:', err);
+      },
+    });
   }
 
   triggerToast(msg: string): void {
@@ -78,7 +91,6 @@ export class Login implements OnInit {
   }
 
   closeToast(): void {
-    console.log('Cerrando toast');
     this.toastMessage.set(null);
     this.showResendVerification.set(false);
     this.showSupportLink.set(false);
@@ -87,9 +99,8 @@ export class Login implements OnInit {
   onGuestLogin(): void {
     this.authService.enviarPeticionGuest({}).subscribe({
       next: (respuesta) => {
-        console.log('Respuesta del servidor:', respuesta);
         this.authService.isLoggedIn.set(true);
-        this.authService.userRol.set(respuesta.data.rol);
+        this.authService.userRol.set(respuesta.data?.rol || respuesta.data?.tipo_usuario);
 
         if (respuesta.status === 'success') {
           this.router.navigate(['/inicio']);
@@ -97,44 +108,121 @@ export class Login implements OnInit {
       },
       error: (err) => {
         console.error('Error de login:', err);
+        this.triggerToast('No se pudo iniciar sesión como invitado.');
+      },
+    });
+  }
+
+  openVerificationBox(correo: string, message?: string): void {
+    if (!correo) {
+      this.triggerToast('Ingresa tu correo electrónico para verificar la cuenta.');
+      return;
+    }
+
+    this.closeToast();
+    this.verificationEmail.set(correo);
+    this.verificationCode.reset('');
+    this.verificationError.set(null);
+    this.verificationMessage.set(message || 'Ingresa el código que se envió a tu correo.');
+    this.showVerificationBox.set(true);
+  }
+
+  hideVerificationBox(): void {
+    this.showVerificationBox.set(false);
+    this.verificationEmail.set('');
+    this.verificationCode.reset('');
+    this.verificationMessage.set(null);
+    this.verificationError.set(null);
+    this.isVerifying.set(false);
+    this.isResending.set(false);
+  }
+
+  onVerifyEmail(): void {
+    if (this.verificationCode.invalid || this.isVerifying()) {
+      this.verificationCode.markAsTouched();
+      return;
+    }
+
+    const payload = {
+      correo: this.verificationEmail(),
+      codigo: this.verificationCode.value,
+    };
+
+    this.isVerifying.set(true);
+    this.verificationError.set(null);
+    this.verificationMessage.set(null);
+
+    this.http.post<any>(`${this.apiUrl}/auth/verify-email`, payload, { withCredentials: true }).subscribe({
+      next: (respuesta) => {
+        this.isVerifying.set(false);
+        this.verificationMessage.set(respuesta?.message || 'Cuenta verificada correctamente. Ya puedes iniciar sesión.');
+        this.verificationError.set(null);
+        this.showVerificationBox.set(true);
+      },
+      error: (err) => {
+        this.isVerifying.set(false);
+        const detail = this.getErrorDetail(err);
+
+        if (detail === 'Código inválido o expirado') {
+          this.verificationError.set('El código es inválido o expiró. Solicita uno nuevo e inténtalo otra vez.');
+        } else if (detail === 'Usuario no encontrado') {
+          this.verificationError.set('No encontramos una cuenta con ese correo. Verifica que esté bien escrito.');
+        } else {
+          this.verificationError.set('No se pudo verificar la cuenta. Inténtalo más tarde.');
+        }
+
+        console.error('Error al verificar correo:', err);
       },
     });
   }
 
   onResendVerification(): void {
-    const correoActual = this.loginForm.get('correo')?.value;
-    console.log('Reenviando correo a:', correoActual);
+    const correoActual = this.verificationEmail() || this.loginForm.get('correo')?.value;
 
-    this.showResendVerification.set(false);
-    this.showSupportLink.set(false);
+    if (!correoActual) {
+      this.triggerToast('Ingresa tu correo electrónico para reenviar el código.');
+      return;
+    }
 
-    this.authService.reenviarVerificacionCorreo(correoActual).subscribe({
+    this.verificationEmail.set(correoActual);
+    this.isResending.set(true);
+    this.verificationError.set(null);
+    this.verificationMessage.set(null);
+
+    this.http.post<any>(`${this.apiUrl}/auth/resend-code`, { correo: correoActual }, { withCredentials: true }).subscribe({
       next: (respuesta) => {
-        if (respuesta.status === 'success') {
-          this.triggerToast('Código de verificación reenviado con éxito. Revisa tu correo.');
-
-          setTimeout(() => {
-            this.router.navigate(['/inicio-sesion']);
-          }, 3000); // 3 segundos para que alcancen a leer el mensaje de éxito
-        }
+        this.isResending.set(false);
+        this.verificationMessage.set(respuesta?.message || 'Código reenviado. Revisa tu correo.');
+        this.showVerificationBox.set(true);
       },
       error: (err) => {
-        // Extraemos el detalle del error que manda FastAPI
-        const detail = err.error?.detail || err.detail;
+        this.isResending.set(false);
+        const detail = this.getErrorDetail(err);
 
         if (detail === 'Usuario no encontrado') {
-          this.triggerToast('El usuario no se encontró. Verifica que el correo esté bien escrito.');
+          this.verificationError.set('El usuario no se encontró. Verifica que el correo esté bien escrito.');
         } else if (detail === 'La cuenta ya está verificada') {
-          this.triggerToast(
-            'Esta cuenta ya está verificada. Ya puedes iniciar sesión directamente.',
-          );
+          this.verificationMessage.set('Esta cuenta ya está verificada. Ya puedes iniciar sesión.');
         } else {
-          // Manejo por si ocurre una caída de red o un error 500 en este endpoint
-          this.triggerToast('No se pudo reenviar el código. Inténtalo de nuevo más tarde.');
+          this.verificationError.set('No se pudo reenviar el código. Inténtalo de nuevo más tarde.');
         }
 
+        this.showVerificationBox.set(true);
         console.error('Error en reenvío de verificación:', err);
       },
     });
+  }
+
+  private getErrorDetail(err: any): string {
+    const detail = err?.error?.detail ?? err?.detail ?? err?.error?.message ?? err?.message;
+
+    if (typeof detail === 'string') return detail;
+    if (detail?.message) return detail.message;
+
+    try {
+      return JSON.stringify(detail);
+    } catch {
+      return 'Error desconocido';
+    }
   }
 }

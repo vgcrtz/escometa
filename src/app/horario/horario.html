@@ -1,57 +1,561 @@
-<div class="h-100 d-flex flex-column bg-white">
-  <div class="pt-3 ps-3">
-    <h2 class="m-0 text-dark fs-2">HORARIO</h2>
+<div class="page-horario h-100 d-flex flex-column bg-white">
+  <div class="pt-3 ps-3 pe-3">
+    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+      <div>
+        <h2 class="m-0 text-dark fs-2 title-horario">HORARIO</h2>
+        <p class="m-0 text-muted small">
+          @if (isAdmin()) {
+            Administra materias, grupos, ofertas, inscripciones y sesiones de clase. Los docentes se cargan desde la BD.
+          } @else {
+            Consulta tus materias inscritas y agrega materias disponibles por semestre y grupo.
+          }
+        </p>
+      </div>
+
+      @if (isAdmin()) {
+        <button type="button" class="btn-refresh" [disabled]="isSaving()" (click)="recargarDatos()">
+          Actualizar datos
+        </button>
+      }
+    </div>
     <hr class="mt-2 mb-0 border-secondary">
   </div>
 
-  <div class="flex-grow-1 d-flex justify-content-center align-items-start mt-5">
-    <div class="w-75 shadow table-container">
-      <table class="table table-bordered text-center m-0">
-        <thead>
-          <tr>
-            <th class="py-3 header-azul ancho-hora">HORA</th>
-            <th class="py-3 header-azul ancho-salon">SALÓN</th>
-            <th class="py-3 header-azul ancho-clase">CLASE</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="py-3 text-dark">7:00</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-          <tr>
-            <td class="py-3 text-dark">8:30</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-          <tr>
-            <td class="py-3 text-dark">10:30</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-          <tr>
-            <td class="py-3 text-dark">12:00</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-          <tr>
-            <td class="py-3 text-dark">13:30</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-          <tr>
-            <td class="py-3 text-dark">15:00</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-          <tr>
-            <td class="py-3 text-dark">16:30</td>
-            <td class="py-3 text-dark">SALÓN</td>
-            <td class="py-3 text-dark">CLASE</td>
-          </tr>
-        </tbody>
-      </table>
+  @if (errorMessage()) {
+    <div class="alert alert-danger mx-auto mt-3 w-75 mb-0" role="alert">
+      {{ errorMessage() }}
     </div>
-  </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success mx-auto mt-3 w-75 mb-0" role="alert">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-block">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 mb-0 text-muted">Cargando información...</p>
+    </div>
+  } @else {
+    @if (isAdmin()) {
+      <div class="admin-wrapper px-3 py-4">
+        <div class="admin-tabs">
+          <button type="button" [class.active]="activeAdminTab() === 'materias'" (click)="cambiarAdminTab('materias')">Materias</button>
+          <button type="button" [class.active]="activeAdminTab() === 'grupos'" (click)="cambiarAdminTab('grupos')">Grupos</button>
+          <button type="button" [class.active]="activeAdminTab() === 'oferta'" (click)="cambiarAdminTab('oferta')">Materias por grupo</button>
+          <button type="button" [class.active]="activeAdminTab() === 'inscripciones'" (click)="cambiarAdminTab('inscripciones')">Inscripciones</button>
+          <button type="button" [class.active]="activeAdminTab() === 'sesiones'" (click)="cambiarAdminTab('sesiones')">Sesiones</button>
+        </div>
+
+        @if (activeAdminTab() === 'materias') {
+          <section class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3>Materias</h3>
+                <p>Crea, edita y elimina materias base.</p>
+              </div>
+              <span class="counter-pill">{{ materias().length }} registradas</span>
+            </div>
+
+            <div class="admin-form-grid materia-form-grid">
+              <div>
+                <label class="form-label">Nombre de la materia</label>
+                <input class="form-control" type="text" name="materiaNombre" [(ngModel)]="materiaForm.nombre" placeholder="Ej. Inteligencia Artificial">
+              </div>
+              <div class="admin-form-actions">
+                <button type="button" class="btn-save" [disabled]="isSaving()" (click)="guardarMateriaAdmin()">
+                  @if (materiaForm.id_materia) { Actualizar } @else { Crear }
+                </button>
+                @if (materiaForm.id_materia) {
+                  <button type="button" class="btn-cancel" [disabled]="isSaving()" (click)="limpiarMateriaForm()">Cancelar</button>
+                }
+              </div>
+            </div>
+
+            <div class="admin-table-wrap">
+              <table class="table table-bordered text-center m-0 admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th class="text-start">Materia</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (materias().length === 0) {
+                    <tr><td colspan="3" class="py-4 text-muted">No hay materias registradas.</td></tr>
+                  }
+                  @for (materia of materias(); track materia.id_materia) {
+                    <tr>
+                      <td>{{ materia.id_materia }}</td>
+                      <td class="text-start fw-medium">{{ materia.nombre }}</td>
+                      <td>
+                        <div class="action-inline">
+                          <button type="button" class="btn-action" [disabled]="isSaving()" (click)="editarMateriaAdmin(materia)">Editar</button>
+                          <button type="button" class="btn-action-danger" [disabled]="isSaving()" (click)="eliminarMateriaAdmin(materia)">Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+
+        @if (activeAdminTab() === 'grupos') {
+          <section class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3>Grupos académicos</h3>
+                <p>Representan el grupo general, por ejemplo 4CM1 o 6CV2.</p>
+              </div>
+              <span class="counter-pill">{{ grupos().length }} registrados</span>
+            </div>
+
+            <div class="admin-note">
+              La clave se genera automáticamente con la forma: semestre + carrera (A/B/C) + turno (M/V) + consecutivo. Ejemplo: 4CM1.
+            </div>
+
+            <div class="admin-form-grid grupo-form-grid">
+              <div>
+                <label class="form-label">Semestre</label>
+                <input class="form-control" type="number" min="1" max="12" name="grupoSemestre" [(ngModel)]="grupoForm.semestre" (ngModelChange)="onGrupoFormBaseChange()" placeholder="Ej. 4">
+              </div>
+              <div>
+                <label class="form-label">Carrera</label>
+                <select class="form-select" name="grupoCarrera" [(ngModel)]="grupoForm.carrera" (ngModelChange)="onGrupoFormBaseChange()">
+                  <option value="">Selecciona carrera</option>
+                  @for (carrera of carreras; track carrera.codigo) {
+                    <option [value]="carrera.nombre">{{ carrera.codigo }} · {{ carrera.nombre }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Turno</label>
+                <select class="form-select" name="grupoTurno" [(ngModel)]="grupoForm.turno" (ngModelChange)="onGrupoFormBaseChange()">
+                  <option value="">Selecciona turno</option>
+                  @for (turno of turnos; track turno.codigo) {
+                    <option [value]="turno.nombre">{{ turno.codigo }} · {{ turno.etiqueta }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Clave generada</label>
+                <input class="form-control generated-key" type="text" name="grupoClave" [(ngModel)]="grupoForm.clave" readonly placeholder="Se genera automáticamente">
+              </div>
+              <div class="admin-form-actions">
+                <button type="button" class="btn-save" [disabled]="isSaving()" (click)="guardarGrupoAdmin()">
+                  @if (grupoForm.id_grupo) { Actualizar } @else { Crear }
+                </button>
+                @if (grupoForm.id_grupo) {
+                  <button type="button" class="btn-cancel" [disabled]="isSaving()" (click)="limpiarGrupoForm()">Cancelar</button>
+                }
+              </div>
+            </div>
+
+            <div class="admin-table-wrap">
+              <table class="table table-bordered text-center m-0 admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Clave</th>
+                    <th>Carrera</th>
+                    <th>Semestre</th>
+                    <th>Turno</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (grupos().length === 0) {
+                    <tr><td colspan="6" class="py-4 text-muted">No hay grupos registrados.</td></tr>
+                  }
+                  @for (grupo of grupos(); track grupo.id_grupo) {
+                    <tr>
+                      <td>{{ grupo.id_grupo }}</td>
+                      <td class="fw-bold">{{ obtenerClaveGrupo(grupo) }}</td>
+                      <td>{{ grupo.carrera || '-' }}</td>
+                      <td>{{ grupo.semestre || '-' }}</td>
+                      <td>{{ grupo.turno || '-' }}</td>
+                      <td>
+                        <div class="action-inline">
+                          <button type="button" class="btn-action" [disabled]="isSaving()" (click)="editarGrupoAdmin(grupo)">Editar</button>
+                          <button type="button" class="btn-action-danger" [disabled]="isSaving()" (click)="eliminarGrupoAdmin(grupo)">Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+        @if (activeAdminTab() === 'oferta') {
+          <section class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3>Materias por grupo</h3>
+                <p>Asigna una materia a un grupo académico y a un docente.</p>
+              </div>
+              <span class="counter-pill">{{ gruposMateria().length }} ofertas</span>
+            </div>
+
+            <div class="admin-form-grid oferta-form-grid">
+              <div>
+                <label class="form-label">Grupo</label>
+                <select class="form-select" name="ofertaGrupo" [(ngModel)]="grupoMateriaForm.id_grupo">
+                  <option value="">Selecciona</option>
+                  @for (grupo of grupos(); track grupo.id_grupo) {
+                    <option [value]="grupo.id_grupo">{{ obtenerClaveGrupo(grupo) }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Materia</label>
+                <select class="form-select" name="ofertaMateria" [(ngModel)]="grupoMateriaForm.id_materia">
+                  <option value="">Selecciona</option>
+                  @for (materia of materias(); track materia.id_materia) {
+                    <option [value]="materia.id_materia">{{ materia.nombre }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Docente</label>
+                <select class="form-select" name="ofertaDocente" [(ngModel)]="grupoMateriaForm.id_docente">
+                  <option value="">Selecciona</option>
+                  @for (docente of docentes(); track docente.id_usuario) {
+                    <option [value]="docente.id_usuario">{{ obtenerNombreUsuario(docente) }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Cupo</label>
+                <input class="form-control" type="number" min="1" name="ofertaCupo" [(ngModel)]="grupoMateriaForm.cupo" placeholder="Ej. 35">
+              </div>
+              <div class="admin-form-actions">
+                <button type="button" class="btn-save" [disabled]="isSaving()" (click)="guardarGrupoMateriaAdmin()">
+                  @if (grupoMateriaForm.id_grupo_materia) { Actualizar } @else { Crear }
+                </button>
+                @if (grupoMateriaForm.id_grupo_materia) {
+                  <button type="button" class="btn-cancel" [disabled]="isSaving()" (click)="limpiarGrupoMateriaForm()">Cancelar</button>
+                }
+              </div>
+            </div>
+
+            @if (docentes().length === 0) {
+              <div class="admin-note">No hay docentes disponibles. Inyecta el SQL de docentes dummy o registra usuarios DOCENTE antes de crear una materia-grupo.</div>
+            }
+
+            <div class="admin-table-wrap">
+              <table class="table table-bordered text-center m-0 admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Grupo</th>
+                    <th>Materia</th>
+                    <th>Docente</th>
+                    <th>Cupo</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (gruposMateria().length === 0) {
+                    <tr><td colspan="6" class="py-4 text-muted">No hay materias ofertadas.</td></tr>
+                  }
+                  @for (oferta of gruposMateria(); track oferta.id_grupo_materia) {
+                    <tr>
+                      <td>{{ oferta.id_grupo_materia }}</td>
+                      <td>{{ oferta.grupo }}</td>
+                      <td class="fw-medium text-start">{{ oferta.materia }}</td>
+                      <td>{{ oferta.docente || '-' }}</td>
+                      <td>{{ oferta.cupo || '-' }}</td>
+                      <td>
+                        <div class="action-inline">
+                          <button type="button" class="btn-action" [disabled]="isSaving()" (click)="editarGrupoMateriaAdmin(oferta)">Editar</button>
+                          <button type="button" class="btn-action-danger" [disabled]="isSaving()" (click)="eliminarGrupoMateriaAdmin(oferta)">Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+
+        @if (activeAdminTab() === 'inscripciones') {
+          <section class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3>Inscripción de alumnos</h3>
+                <p>El alumno se inscribe a una materia específica dentro de un grupo, no al grupo completo.</p>
+              </div>
+            </div>
+
+            <div class="admin-form-grid inscripcion-form-grid">
+              <div>
+                <label class="form-label">Materia-grupo</label>
+                <select class="form-select" name="inscripcionOferta" [(ngModel)]="inscripcionGrupoMateriaSeleccionado" (ngModelChange)="onGrupoMateriaInscripcionChange()">
+                  <option value="">Selecciona</option>
+                  @for (oferta of gruposMateria(); track oferta.id_grupo_materia) {
+                    <option [value]="oferta.id_grupo_materia">{{ obtenerTextoOferta(oferta) }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Alumno disponible</label>
+                <select class="form-select" name="inscripcionAlumno" [(ngModel)]="alumnoSeleccionado" [disabled]="!inscripcionGrupoMateriaSeleccionado">
+                  <option value="">Selecciona</option>
+                  @for (alumno of alumnosDisponibles(); track alumno.id_usuario) {
+                    <option [value]="alumno.id_usuario">{{ obtenerNombreUsuario(alumno) }} · {{ obtenerCorreoUsuario(alumno) }}</option>
+                  }
+                </select>
+              </div>
+              <div class="admin-form-actions">
+                <button type="button" class="btn-save" [disabled]="isSaving() || !inscripcionGrupoMateriaSeleccionado" (click)="inscribirAlumnoAdmin()">
+                  Inscribir
+                </button>
+              </div>
+            </div>
+
+            @if (inscripcionGrupoMateriaSeleccionado) {
+              <div class="admin-table-wrap mt-3">
+                <table class="table table-bordered text-center m-0 admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th class="text-start">Alumno inscrito</th>
+                      <th>Correo</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @if (alumnosInscritos().length === 0) {
+                      <tr><td colspan="4" class="py-4 text-muted">No hay alumnos inscritos en esta materia-grupo.</td></tr>
+                    }
+                    @for (alumno of alumnosInscritos(); track alumno.id_usuario) {
+                      <tr>
+                        <td>{{ alumno.id_usuario }}</td>
+                        <td class="text-start fw-medium">{{ obtenerNombreUsuario(alumno) }}</td>
+                        <td>{{ obtenerCorreoUsuario(alumno) }}</td>
+                        <td>
+                          <button type="button" class="btn-action-danger" [disabled]="isSaving()" (click)="expulsarAlumnoAdmin(alumno)">Remover</button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="admin-empty-state">Selecciona una materia-grupo para ver sus alumnos inscritos.</div>
+            }
+          </section>
+        }
+
+        @if (activeAdminTab() === 'sesiones') {
+          <section class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3>Sesiones de clase</h3>
+                <p>Configura el horario y aula de cada materia-grupo.</p>
+              </div>
+            </div>
+
+            <div class="admin-form-grid sesiones-selector-grid">
+              <div>
+                <label class="form-label">Materia-grupo</label>
+                <select class="form-select" name="sesionOferta" [(ngModel)]="sesionGrupoMateriaSeleccionado" (ngModelChange)="onGrupoMateriaSesionChange()">
+                  <option value="">Selecciona</option>
+                  @for (oferta of gruposMateria(); track oferta.id_grupo_materia) {
+                    <option [value]="oferta.id_grupo_materia">{{ obtenerTextoOferta(oferta) }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            @if (sesionGrupoMateriaSeleccionado) {
+              <div class="admin-form-grid sesion-form-grid mt-3">
+                <div>
+                  <label class="form-label">Día</label>
+                  <select class="form-select" name="sesionDia" [(ngModel)]="sesionForm.dia">
+                    @for (dia of diasSemana; track dia) {
+                      <option [value]="dia">{{ dia }}</option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">Hora inicio</label>
+                  <input class="form-control" type="time" name="sesionInicio" [(ngModel)]="sesionForm.hora_inicio">
+                </div>
+                <div>
+                  <label class="form-label">Hora fin</label>
+                  <input class="form-control" type="time" name="sesionFin" [(ngModel)]="sesionForm.hora_fin">
+                </div>
+                <div>
+                  <label class="form-label">Aula</label>
+                  <input class="form-control" type="text" name="sesionAula" [(ngModel)]="sesionForm.aula" placeholder="Ej. A-101">
+                </div>
+                <div class="admin-form-actions">
+                  <button type="button" class="btn-save" [disabled]="isSaving()" (click)="guardarSesionAdmin()">
+                    @if (sesionForm.id_sesion) { Actualizar } @else { Crear }
+                  </button>
+                  @if (sesionForm.id_sesion) {
+                    <button type="button" class="btn-cancel" [disabled]="isSaving()" (click)="limpiarSesionForm(false)">Cancelar</button>
+                  }
+                </div>
+              </div>
+
+              <div class="admin-table-wrap mt-3">
+                <table class="table table-bordered text-center m-0 admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Día</th>
+                      <th>Hora</th>
+                      <th>Aula</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @if (sesionesGrupoMateria().length === 0) {
+                      <tr><td colspan="5" class="py-4 text-muted">No hay sesiones registradas para esta materia-grupo.</td></tr>
+                    }
+                    @for (sesion of sesionesGrupoMateria(); track sesion.id_sesion) {
+                      <tr>
+                        <td>{{ sesion.id_sesion }}</td>
+                        <td class="fw-medium">{{ sesion.dia }}</td>
+                        <td>{{ formatearRangoSesion(sesion) }}</td>
+                        <td>{{ sesion.aula || '-' }}</td>
+                        <td>
+                          <div class="action-inline">
+                            <button type="button" class="btn-action" [disabled]="isSaving()" (click)="editarSesionAdmin(sesion)">Editar</button>
+                            <button type="button" class="btn-action-danger" [disabled]="isSaving()" (click)="eliminarSesionAdmin(sesion)">Eliminar</button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="admin-empty-state">Selecciona una materia-grupo para administrar sus sesiones.</div>
+            }
+          </section>
+        }
+      </div>
+    } @else {
+      <div class="flex-grow-1 d-flex justify-content-center align-items-start mt-4 px-3 pb-5">
+        <div class="w-75 shadow table-container">
+          <table class="table table-bordered text-center m-0 horario-table">
+            <thead>
+              <tr>
+                <th class="py-3 header-azul ancho-dia">DÍA</th>
+                <th class="py-3 header-azul ancho-hora">HORA</th>
+                <th class="py-3 header-azul ancho-salon">SALÓN</th>
+                <th class="py-3 header-azul ancho-clase">CLASE</th>
+                @if (editMode()) {
+                  <th class="py-3 header-azul ancho-acciones">ACCIONES</th>
+                }
+              </tr>
+            </thead>
+
+            <tbody>
+              @if (horario().length === 0 && !editMode()) {
+                <tr>
+                  <td colspan="4" class="py-5 text-muted">
+                    Todavía no tienes materias inscritas en tu horario.
+                  </td>
+                </tr>
+              }
+
+              @for (fila of horario(); track fila.id_fila) {
+                <tr>
+                  <td class="py-3 text-dark fw-medium">{{ fila.dia }}</td>
+                  <td class="py-3 text-dark">{{ formatearRangoHorario(fila) }}</td>
+                  <td class="py-3 text-dark">{{ fila.aula }}</td>
+                  <td class="py-3 text-dark text-start">
+                    <div class="materia-cell">
+                      <span class="materia-nombre">{{ fila.materia }}</span>
+                      <span class="materia-detalle">{{ fila.grupo }} @if (fila.docente) { · {{ fila.docente }} }</span>
+                    </div>
+                  </td>
+                  @if (editMode()) {
+                    <td class="py-3 text-dark">
+                      <button type="button" class="btn-action-danger" [disabled]="isSaving()" (click)="eliminarMateria(fila)">
+                        Eliminar
+                      </button>
+                    </td>
+                  }
+                </tr>
+              }
+
+              @if (editMode()) {
+                <tr class="agregar-row">
+                  <td [attr.colspan]="5" class="p-0">
+                    @if (!mostrarFormularioAgregar()) {
+                      <button type="button" class="btn-add-row" (click)="abrirFormularioAgregar()">
+                        + Agregar materia
+                      </button>
+                    } @else {
+                      <div class="add-form-container text-start">
+                        <div class="row g-3 align-items-end">
+                          <div class="col-12 col-md-3">
+                            <label class="form-label">Semestre</label>
+                            <select class="form-select" name="semestre" [(ngModel)]="semestreSeleccionado" (ngModelChange)="onSemestreChange()">
+                              <option value="">Selecciona</option>
+                              @for (semestre of semestres(); track semestre) {
+                                <option [value]="semestre">{{ semestre }}° semestre</option>
+                              }
+                            </select>
+                          </div>
+
+                          <div class="col-12 col-md-3">
+                            <label class="form-label">Grupo</label>
+                            <select class="form-select" name="grupo" [(ngModel)]="grupoSeleccionado" (ngModelChange)="onGrupoChange()" [disabled]="!semestreSeleccionado">
+                              <option value="">Selecciona</option>
+                              @for (grupo of gruposFiltrados(); track grupo.id_grupo) {
+                                <option [value]="grupo.id_grupo">{{ obtenerClaveGrupo(grupo) }}</option>
+                              }
+                            </select>
+                          </div>
+
+                          <div class="col-12 col-md-4">
+                            <label class="form-label">Materia</label>
+                            <select class="form-select" name="grupoMateria" [(ngModel)]="grupoMateriaSeleccionado" [disabled]="!grupoSeleccionado">
+                              <option value="">Selecciona</option>
+                              @for (materiaGrupo of materiasFiltradas(); track materiaGrupo.id_grupo_materia) {
+                                <option [value]="materiaGrupo.id_grupo_materia">{{ obtenerTextoMateria(materiaGrupo) }}</option>
+                              }
+                            </select>
+                            @if (grupoSeleccionado && materiasFiltradas().length === 0) {
+                              <small class="text-muted">No hay materias disponibles para este grupo o ya están inscritas.</small>
+                            }
+                          </div>
+
+                          <div class="col-12 col-md-2 d-flex gap-2 justify-content-md-end">
+                            <button type="button" class="btn-save" [disabled]="isSaving()" (click)="inscribirMateria()">
+                              @if (isSaving()) { Guardando... } @else { Agregar }
+                            </button>
+                            <button type="button" class="btn-cancel" [disabled]="isSaving()" (click)="cancelarFormularioAgregar()">
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <button type="button" class="btn-floating-edit" [class.editing]="editMode()" (click)="activarEdicion()">
+        @if (editMode()) { Cerrar edición } @else { Editar horario }
+      </button>
+    }
+  }
 </div>

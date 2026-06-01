@@ -14,14 +14,12 @@ export class Perfil implements OnInit {
   private supabaseStorage = inject(ImagenService);
   private location = inject(Location);
 
-  // Estados reactivos basados en Signals
+  // Estados reactivos
   public userData = signal<any>(null);
   public isLoading = signal<boolean>(true);
   public isUploading = signal<boolean>(false);
 
-  // Fallback solicitado: icono por defecto si no hay foto_perfil_url
   public defaultAvatar = 'user.png';
-
   public isAdmin = computed(() => this.userData()?.tipo_usuario === 'ADMIN');
 
   ngOnInit(): void {
@@ -52,21 +50,21 @@ export class Perfil implements OnInit {
     this.isUploading.set(true);
 
     try {
-      // Definimos el nombre del archivo usando el nickname único del usuario
+      // Creamos un nombre de archivo único usando el nickname
       const nickname = (this.userData()?.nombre_usuario || 'default').replace(/\s+/g, '_');
       const nombreArchivo = `avatar_${nickname}.png`;
 
-      // 1. Invocamos la subida hacia el bucket 'avatars' de Supabase
+      // 1. Subimos la imagen. Pasamos 'imagenes' como nombre del bucket.
       const urlPublicaSupabase = await this.supabaseStorage.subirImagen(
         archivo,
-        'imagenes',
+        'imagenes', // <--- AQUÍ especificamos el bucket de Supabase
         nombreArchivo,
       );
 
-      // 2. Reportamos la nueva URL a tu API central en Python/PHP
+      // 2. Reportamos la nueva URL a tu API (ESCOMETA)
       this.authService.subir_foto_perfil(urlPublicaSupabase).subscribe({
         next: () => {
-          // 3. Modificamos la propiedad exacta data.foto_perfil_url reactivamente
+          // Actualizamos la vista reactivamente
           this.userData.update((current) => ({
             ...current,
             foto_perfil_url: urlPublicaSupabase,
